@@ -1,213 +1,232 @@
-# Todo Full-Stack Web Application Constitution
-
-## Core Principles
-
-### I. Clean, Maintainable, and Well-Documented Code
-All code must follow established patterns and include appropriate comments for complex logic. Code complexity must be kept below 10 on the cyclomatic complexity scale. Documentation must be updated when code changes affect functionality. All functions must have docstrings explaining parameters, return values, and exceptions.
-
-### II. Test-Driven Development (TDD) Approach
-All features must follow Test-Driven Development approach. Unit tests must be written before implementation code, with tests failing initially. The Red-Green-Refactor cycle must be strictly enforced. Test coverage reports must show 0% coverage before implementation begins.
-
-### III. User Experience Priority
-User experience must be prioritized with smooth animations (60fps) and responsive design. All UI components must pass accessibility tests (WCAG 2.1 AA compliance). Core user flows must complete within 3 seconds on mid-tier mobile devices. Performance budgets must be defined and monitored for all user-facing features.
-
-### IV. Production-Ready Code from Day One
-All code must be production-ready from day one. This includes proper error handling (no unhandled exceptions), structured logging with appropriate log levels, performance benchmarks showing acceptable response times, and security measures. No "temporary" or "placeholder" code is acceptable. All code must pass security scanning tools with zero critical vulnerabilities.
-
-### V. Security-First Mindset
-Security must be considered in all implementations. All code must include input validation, output sanitization, and protection against OWASP Top 10 vulnerabilities. Security scanning tools must be integrated into the CI/CD pipeline. Security reviews are mandatory for all features and must result in zero critical or high severity findings.
-
-### VI. Full-Stack Consistency
-Frontend and backend implementations must maintain consistency in design patterns, naming conventions, and architectural approaches. API contracts must be defined with OpenAPI specifications. All team members must follow the same standards regardless of their focus area. Consistency checks must be performed during code reviews.
-
-## Code Quality Standards
-
-### Frontend (Next.js/TypeScript)
-- TypeScript strict mode must be enabled for all files (noImplicitAny, strictNullChecks, etc.)
-- All components must have proper TypeScript interfaces and types with 100% type coverage
-- Functional components with React Hooks must be used (no class components)
-- Next.js App Router conventions must be followed strictly (app directory structure)
-- ESLint configuration with strict rules must be applied and pass without warnings
-- Prettier must be used for consistent code formatting with standardized config
-- Tailwind CSS must use consistent design tokens from the design system
-- All components must be properly typed with Props interfaces
-
-### Backend (Python/FastAPI)
-- Python 3.12+ with full type hints must be used for all functions (100% type coverage)
-- All functions must have type hints and comprehensive docstrings following Google style
-- FastAPI best practices must be followed for route definitions (proper status codes, response models)
-- Pydantic models must be used for all request/response validation with proper validation rules
-- SQLModel must be used for all database operations with proper relationships and constraints
-- Proper error handling with custom exceptions must be implemented (no 500 errors in production)
-- All endpoints must have proper authentication and authorization checks where required
-
-## Testing Requirements
-
-### Frontend Testing
-- Jest + React Testing Library must be used with 80%+ coverage measured by Istanbul
-- All components must have unit tests covering rendering, user interactions, and edge cases
-- Mock services appropriately for testing components in isolation using MSW or similar
-- Snapshot tests must be used for UI components where appropriate (avoid overuse)
-- All tests must pass in CI environment before merging
-
-### Backend Testing
-- pytest must be used with 90%+ coverage measured by Coverage.py
-- All API endpoints must have integration tests covering all HTTP methods and status codes
-- All business logic must have unit tests with comprehensive test cases including edge cases
-- Database operations must be tested with proper fixtures using SQLModel
-- All tests must pass in CI environment before merging
-
-### End-to-End Testing
-- All critical user flows must have E2E tests using Playwright or similar framework
-- Tests must run in CI/CD pipeline without manual intervention and pass consistently
-- Test data must be properly managed and cleaned up after tests to ensure isolation
-- E2E tests must cover at least the primary success paths and common error scenarios
-
-## Security Standards
-
-### Authentication & Authorization
-- JWT tokens must be used for all API authentication with proper signing algorithms (RS256 recommended)
-- Token expiration and refresh mechanisms must be properly implemented (short-lived access tokens with refresh tokens)
-- Role-based access control must be enforced where applicable with proper authorization checks
-- Session management must follow security best practices (secure, httpOnly cookies)
-
-### Data Protection
-- Input validation must be performed on both frontend and backend with proper sanitization
-- No sensitive data (passwords, tokens, PII) must be logged or exposed in error messages
-- Environment variables must be used for all secrets (never hardcoded) with validation in CI/CD
-- CORS must be properly configured with specific allowed origins (no wildcard in production)
-- Data encryption must be used for sensitive data at rest and in transit (TLS 1.3)
-
-### API Security
-- Rate limiting must be implemented for all API endpoints (e.g., 100 requests per minute per IP)
-- SQL injection prevention must be ensured through ORM prepared statements (no raw SQL queries)
-- All API endpoints must validate and sanitize user inputs using schema validation
-- Proper authentication and authorization checks must be in place for all protected endpoints
-- API responses must not expose sensitive system information
-
-## UI/UX Standards
-
-### Design Principles
-- Mobile-first responsive design must be implemented for all components (mobile, tablet, desktop)
-- Consistent spacing system with 4px baseline grid must be followed (using Tailwind spacing utilities)
-- Smooth animations must be used for state changes and transitions (60fps, max 300ms duration)
-- Accessibility compliance (WCAG 2.1 AA) must be maintained with automated testing
-- All UI components must be tested with screen readers and keyboard navigation
-
-### User Experience
-- Dark/Light theme support must be available throughout the application with user preference persistence
-- Loading states must be provided for all asynchronous operations (with skeleton screens or spinners)
-- Error states must include helpful messages and recovery options (with error codes for support)
-- Form validation must provide clear, immediate feedback (inline validation, accessible error messages)
-- All interactive elements must have clear visual feedback on hover and focus states
-
-## Database Standards
-
-### Database Design
-- Neon PostgreSQL must be used for production environments with proper connection pooling
-- All tables must include created_at and updated_at timestamp fields with timezone awareness
-- Proper indexes must be created for performance optimization based on query patterns
-- Foreign key constraints must be properly defined with appropriate cascade behaviors
-- Database schema changes must be implemented using migration scripts with rollback capability
-
-### Data Management
-- A clear data migration strategy must be followed for schema changes with automated testing
-- Regular backup procedures must be implemented and tested with point-in-time recovery capability
-- Data integrity checks must be performed regularly with automated monitoring
-- Database connection pooling must be properly configured with appropriate limits and timeouts
-- Sensitive data must be properly anonymized in non-production environments
-
-## Git Workflow
-
-### Branching Strategy
-- Feature branches must be created from main branch for all changes (naming: feature/issue-number-description)
-- Conventional commit messages must be used following the format: type(scope): description (build, chore, ci, docs, feat, fix, perf, refactor, revert, style, test)
-- Pull request reviews must be required with at least one approved review before merging
-- Semantic versioning must be followed for releases (MAJOR.MINOR.PATCH format)
-- All commits must pass automated checks before being pushed to remote
-
-### Code Review Process
-- All pull requests must be reviewed by at least one other team member with domain expertise
-- Automated tests must pass before code review (coverage, linting, security scans)
-- Code must follow all standards outlined in this constitution with zero violations
-- Changes must be documented appropriately in the pull request description
-- Reviewers must verify that new code includes appropriate tests and documentation
-
-## Documentation Requirements
-
-### Project Documentation
-- README must include comprehensive setup instructions with prerequisites, installation, and running instructions
-- API documentation must be generated with OpenAPI/Swagger and kept up-to-date with code changes
-- Component documentation must be maintained with usage examples and props documentation
-- Architecture Decision Records (ADRs) must be created for major decisions with clear rationale
-- All public APIs must have usage examples and clear documentation
-
-### Code Documentation
-- Complex logic (cyclomatic complexity > 5) must include explanatory comments
-- Public functions and classes must have comprehensive docstrings following appropriate standards (Google style for Python, JSDoc for JS/TS)
-- API endpoints must be documented with request/response examples, status codes, and error scenarios
-- Configuration options must be clearly explained with default values and valid ranges
-- All business logic must include comments explaining the "why" not just the "what"
-
-## Development Workflow
-
-### Spec-Kit Plus Process
-- Constitution → Specification → Planning → Tasks → Implementation workflow must be followed for all features
-- Each feature must have a specification with acceptance criteria before coding begins
-- Code reviews must be completed before merging with checklist verification
-- Continuous Integration (CI) must run all tests, linting, and security scans before deployment
-- All changes must be tracked in the project management system with linked commits
-
-### Feature Development
-- Each feature must have acceptance criteria defined in the specification with testable conditions
-- Implementation must match the specification exactly with no deviations without specification update
-- Testing requirements must be met before feature completion (unit, integration, E2E as applicable)
-- Documentation must be updated when features are implemented (API docs, user guides, etc.)
-- Performance benchmarks must be met before feature completion (response times, resource usage)
-
-## Performance Standards
-
-### Frontend Performance
-- Lighthouse score must be maintained above 90 for performance, accessibility, best practices, and SEO
-- Bundle size must be optimized with code splitting (max 250KB initial bundle)
-- Images must be optimized and served in WebP format where possible with fallbacks
-- Critical resources must be prioritized for loading (preload, prefetch, resource hints)
-- Time to Interactive (TTI) must be under 3 seconds on 4G connections
-
-### Backend Performance
-- API endpoints must respond within 200ms under normal load (95th percentile)
-- Database queries must be optimized with proper indexing (max 50ms query time)
-- Caching strategies must be implemented where appropriate (Redis or similar)
-- Resource usage must be monitored and optimized (CPU, memory, network)
-- API endpoints must handle at least 100 concurrent requests without degradation
-
-## Governance
-
-This constitution establishes the immutable standards that apply to all features and components of the Todo Full-Stack Web Application. All team members (human and AI) must follow these rules. The constitution can be updated only with team consensus and proper amendment procedures.
-
-### Amendment Process
-- Constitutional amendments require team-wide discussion and approval (75% consensus)
-- Changes must be documented with rationale and impact assessment using ADR process
-- All affected specifications, implementations, and documentation must be updated accordingly
-- Version numbers must be incremented according to semantic versioning (MAJOR.MINOR.PATCH)
-
-### Compliance
-- All code reviews must verify compliance with these standards using checklist
-- Automated checks must be implemented in CI/CD pipeline where possible
-- Non-compliance issues must be addressed before merging (fail builds if necessary)
-- Regular audits should be conducted to ensure continued adherence (quarterly)
-
-**Version**: 1.0.0 | **Ratified**: 2025-01-01 | **Last Amended**: 2025-01-01
-
 <!--
 Sync Impact Report:
-- Version change: N/A → 1.0.0
-- Modified principles: N/A (new constitution)
-- Added sections: All sections are new
-- Removed sections: N/A
+- Version change: 0.0.0 (initial template) → 1.0.0
+- Modified principles: All principles are new, based on user-provided sections.
+- Added sections: All sections (Project Overview, Code Quality Standards, Security Standards, Database Standards, API Design Standards, Frontend Architecture, Design System, Testing Standards, Development Workflow, Deployment Standards, Performance Standards, Success Criteria by Phase) are new.
+- Removed sections: None (old content was placeholder template).
 - Templates requiring updates:
-  - ✅ .specify/templates/plan-template.md - Updated to reference new constitution
-  - ✅ .specify/templates/spec-template.md - Updated to reference new constitution
-  - ✅ .specify/templates/tasks-template.md - Updated to reference new constitution
+    - .specify/templates/plan-template.md (⚠ pending)
+    - .specify/templates/spec-template.md (⚠ pending)
+    - .specify/templates/tasks-template.md (⚠ pending)
+    - .specify/templates/commands/*.md (⚠ pending)
 - Follow-up TODOs: None
 -->
+# ADD_TaskFlow-App Constitution
+
+## 1. Project Overview
+Project Name: ADD_TaskFlow-App
+Purpose: Modern Todo Web Application with full authentication and task management
+Phases: 4-phase structured development
+  Phase 1: Project Foundation Setup - Monorepo, Next.js 16, FastAPI, Design System
+  Phase 2: User Authentication - Better Auth, JWT tokens, Signup/Login
+  Phase 3: Task Management (CRUD) - PostgreSQL, SQLModel, Task Operations
+  Phase 4: UI & Full Integration - Frontend UI, API Integration, Testing, Polish
+Tech Stack: Next.js 16 (App Router), FastAPI, SQLModel, Neon PostgreSQL, Tailwind CSS, Framer Motion, Better Auth
+
+## 2. Code Quality Standards
+### Frontend:
+- TypeScript strict mode enabled
+- All components must have TypeScript interfaces
+- Use functional components with hooks (no class components)
+- ESLint + Prettier for code quality
+- File naming: PascalCase for components, camelCase for utilities
+- One component per file with colocated tests
+### Backend:
+- Python 3.12+ with full type hints
+- All functions must have docstrings with parameters, returns, examples
+- FastAPI with automatic OpenAPI documentation
+- SQLModel for all database operations (no raw SQL)
+- Pydantic models for request/response validation
+
+## 3. Security Standards
+### Authentication:
+- Better Auth for frontend authentication
+- JWT tokens with 24-hour expiry for access, 7 days for refresh
+- Token validation in FastAPI middleware
+- Password hashing with bcrypt (12 rounds minimum)
+- All API endpoints protected by default (except /health, /auth)
+### Data Protection:
+- Environment variables for all secrets (DATABASE_URL, JWT_SECRET)
+- No hardcoded secrets in code
+- Input validation on both frontend and backend
+- SQL injection prevention via SQLModel only
+- CORS configured for specific origins
+### User Data Isolation:
+- All database queries must filter by user_id from JWT token
+- API: GET /api/tasks returns only current user's tasks
+- Frontend must not expose other users' data
+- User ownership verification before update/delete operations
+
+## 4. Database Standards
+### Schema Design:
+- Tables: users, tasks (expandable for Phase 3-4)
+- Required columns: id, created_at, updated_at for all tables
+- Foreign keys: user_id references users(id)
+- Indexes on: user_id, status, due_date
+### Models Example:
+```python
+class Task(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: str = Field(foreign_key="users.id", nullable=False)
+    title: str = Field(min_length=1, max_length=200)
+    description: Optional[str] = Field(default=None, max_length=1000)
+    completed: bool = Field(default=False)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+```
+
+## 5. API Design Standards
+### Endpoint Structure:
+- Base: `/api/v1/`
+- Health: `GET /api/health`
+- Auth: `POST /api/auth/signup`, `POST /api/auth/login`
+- Tasks: `GET /api/tasks`, `POST /api/tasks`, `GET /api/tasks/{id}`, `PUT /api/tasks/{id}`, `DELETE /api/tasks/{id}`, `PATCH /api/tasks/{id}/complete`
+### HTTP Methods:
+- `GET`: Retrieve resources
+- `POST`: Create new resources
+- `PUT`: Update entire resources
+- `PATCH`: Partial updates (complete toggle)
+- `DELETE`: Remove resources
+### Response Format:
+- Success: `200`/`201` with data
+- Error: Consistent error format: `{"detail": "message", "status": 400}`
+- Validation errors: `422` with field-specific messages
+
+## 6. Frontend Architecture
+### App Router Structure:
+```
+app/
+├── (auth)/
+│   ├── signup/page.tsx
+│   └── login/page.tsx
+├── dashboard/
+│   ├── tasks/page.tsx
+│   └── profile/page.tsx
+├── layout.tsx
+└── page.tsx
+```
+### Component Structure:
+```
+components/
+├── ui/
+│   ├── Button.tsx
+│   ├── Card.tsx
+│   ├── Input.tsx
+│   └── Modal.tsx
+├── tasks/
+│   ├── TaskList.tsx
+│   └── TaskForm.tsx
+├── layout/
+│   ├── Header.tsx
+│   └── Sidebar.tsx
+└── shared/
+    ├── api.ts
+    └── utils.ts
+```
+
+## 7. Design System
+### Colors (Tailwind):
+- Primary: blue-500 (#3b82f6) to purple-600 (#8b5cf6) gradient
+- Secondary: gray scale
+- Success: green-500 (#10b981)
+- Warning: yellow-500 (#f59e0b)
+- Error: red-500 (#ef4444)
+### Typography:
+- Font: Inter (Google Fonts)
+- Scale: 12px, 14px, 16px, 18px, 20px, 24px, 32px
+- Weights: 400, 500, 600, 700
+### Spacing:
+- Base: 4px
+- Scale: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64
+### Animations:
+- Library: Framer Motion
+- Duration: 150ms, 300ms, 500ms
+- Easing: cubic-bezier(0.4, 0, 0.2, 1)
+- Transitions: fade, slide, scale
+
+## 8. Testing Standards
+### Frontend:
+- Jest + React Testing Library
+- 80% coverage for components
+- MSW for API mocking
+- Playwright for E2E (Phase 4)
+### Backend:
+- pytest with 90% coverage
+- Test database with fixtures
+- API endpoint testing with TestClient
+### Test Structure:
+- Unit tests for business logic
+- Integration tests for API endpoints
+- E2E tests for critical user flows
+
+## 9. Development Workflow
+### Git:
+- Feature branches from `main`
+- Conventional commits: `feat:`, `fix:`, `chore:`, `docs:`
+- Pull requests with code review
+- Semantic versioning for releases
+### Spec-Kit Plus Workflow:
+- Constitution (this file)
+- Specification (`specs/` folder)
+- Plan (`plan.md`)
+- Tasks (`tasks.md`)
+- Implementation
+- Testing & Review
+### Environment Setup:
+- Development: `localhost:3000` (frontend), `localhost:8000` (backend)
+- Staging: preview deployments
+- Production: Vercel (frontend) + Railway (backend)
+
+## 10. Deployment Standards
+### Frontend (Vercel):
+- Automatic deployment from `main` branch
+- Preview deployments for PRs
+- Environment variables in Vercel dashboard
+- Custom domain setup
+### Backend (Railway):
+- PostgreSQL via Neon
+- Environment variables in Railway
+- Health check endpoint monitoring
+- Logging and monitoring setup
+
+## 11. Performance Standards
+### Frontend:
+- Lighthouse score > 90
+- First Contentful Paint < 1.5s
+- Time to Interactive < 3.5s
+- Bundle optimization
+### Backend:
+- API response time < 200ms (p95)
+- Database query optimization
+- Connection pooling
+- Caching where appropriate
+
+## 12. Success Criteria by Phase
+### Phase 1 - Foundation:
+- Monorepo: `frontend/`, `backend/`, `specs/`, `docs/`
+- Next.js 16: running on `localhost:3000`
+- FastAPI: running on `localhost:8000` with `/health` endpoint
+- Design system: Tailwind config with colors, typography
+- Basic components: `Button`, `Card`, `Input`, `Modal`, `LoadingSpinner`
+### Phase 2 - Authentication:
+- Better Auth: signup and login pages
+- JWT tokens: issued and validated
+- Protected routes: middleware for authentication
+- User context: available throughout app
+### Phase 3 - Task Management:
+- Database: `users` and `tasks` tables created
+- API endpoints: full CRUD for tasks
+- User isolation: each user sees only their tasks
+- Task operations: create, read, update, delete, complete toggle
+### Phase 4 - UI & Integration:
+- Task UI: complete interface for all operations
+- Frontend-backend integration: all API calls working
+- Testing: unit, integration, E2E tests passing
+- Deployment: both frontend and backend deployed
+- Documentation: setup guide, API docs, user guide
+
+## Governance
+Applicable: All 4 phases
+Status: Active - All development must follow these standards
+
+**Version**: 1.0.0 | **Ratified**: 2026-01-01 | **Last Amended**: 2026-01-01
