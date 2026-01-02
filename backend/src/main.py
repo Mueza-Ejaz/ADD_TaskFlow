@@ -14,6 +14,11 @@ from .database import create_db_and_tables # Import create_db_and_tables
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         response = await call_next(request)
+
+        # Skip security headers for documentation endpoints
+        if request.url.path in ["/docs", "/redoc"] or request.url.path.startswith("/openapi.json"):
+            return response
+
         # HSTS Header
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
         # CSP Header (example - adjust as needed for your frontend resources)

@@ -7,12 +7,12 @@ from sqlmodel import Session, select
 from typing import Optional
 from pydantic import BaseModel
 
-from ...database import get_session
-from ...models.user import User
-from ...auth.password import hash_password, verify_password
-from ...auth.jwt_handler import create_access_token
-from ...config import settings
-from ..deps import get_current_user # Import the actual dependency
+from ....database import get_session
+from ....models.user import User
+from ....auth.password import hash_password, verify_password
+from ....auth.jwt_handler import create_access_token
+from ....config import settings
+from ...deps import get_current_user # Import the actual dependency
 
 # In-memory store for rate limiting
 RATE_LIMIT_STORE = {}
