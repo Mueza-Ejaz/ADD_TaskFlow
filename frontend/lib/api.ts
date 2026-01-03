@@ -4,10 +4,10 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 async function fetchWithAuth<T>(url: string, options?: RequestInit): Promise<T> {
   const session = await getSession();
-  const headers: HeadersInit = {
+  const headers = {
     "Content-Type": "application/json",
     ...options?.headers,
-  };
+  } as Record<string, string>;
 
   if (session?.accessToken) {
     headers["Authorization"] = `Bearer ${session.accessToken}`;

@@ -1,8 +1,8 @@
 import React from 'react';
 import clsx from 'clsx';
-import { motion } from 'framer-motion';
+import { motion, HTMLMotionProps } from 'framer-motion';
 
-export interface LoadingSpinnerProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface LoadingSpinnerProps extends HTMLMotionProps<'div'> {
   size?: 'sm' | 'md' | 'lg';
   color?: string; // Tailwind color class, e.g., 'blue-500'
 }
@@ -14,12 +14,6 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ size = 'md', color = 't
     lg: 'h-12 w-12 border-4',
   };
 
-  const spinTransition = {
-    repeat: Infinity,
-    ease: 'linear',
-    duration: 1,
-  };
-
   return (
     <motion.div
       className={clsx(
@@ -29,7 +23,11 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ size = 'md', color = 't
         className
       )}
       animate={{ rotate: 360 }}
-      transition={spinTransition}
+      transition={{
+        repeat: Infinity,
+        ease: "linear",
+        duration: 1
+      }}
       {...props}
     />
   );

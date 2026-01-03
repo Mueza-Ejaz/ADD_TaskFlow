@@ -17,7 +17,23 @@ export const authOptions: NextAuthOptions = {
         });
         if (!res.ok) return null;
         const data = await res.json();
-        return { id: data.user_id.toString(), email: data.email, name: data.name, accessToken: data.access_token };
+        // Backend returns { access_token: "...", token_type: "bearer" }
+        // We need to get user info separately using the token
+        const userRes = await fetch("http://localhost:8000/api/v1/auth/me", {
+          headers: {
+            "Authorization": `Bearer ${data.access_token}`,
+            "Content-Type": "application/json"
+          }
+        });
+        if (!userRes.ok) return null;
+        const userData = await userRes.json();
+
+        return {
+          id: userData.id.toString(),
+          email: userData.email,
+          name: userData.full_name,
+          accessToken: data.access_token
+        };
       }
     })
   ],
@@ -37,8 +53,7 @@ export const authOptions: NextAuthOptions = {
     }
   },
   pages: {
-    signIn: "/login",
-    signUp: "/signup"
+    signIn: "/login"
   },
   secret: process.env.NEXTAUTH_SECRET
 };

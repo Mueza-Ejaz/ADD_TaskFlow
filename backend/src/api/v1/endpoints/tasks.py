@@ -8,27 +8,23 @@ from ....models.task import Task
 from ....models.user import User # Import User model to define relationship
 from ...deps import get_current_user
 
-# Define TaskCreate, TaskRead, TaskUpdate models based on Task
-class TaskCreate(Task):
-    # For creation, id, created_at, updated_at are optional. user_id will be set by current_user.
-    # Exclude these fields from being provided by the client during creation
-    id: Optional[int] = None
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
-    user_id: Optional[int] = None # Will be set by dependency
+from pydantic import BaseModel
 
+# Define TaskCreate, TaskRead, TaskUpdate models based on Task
+class TaskCreate(BaseModel):
+    # For creation, exclude id, user_id, created_at, updated_at from client input
+    title: str
+    description: Optional[str] = None
+    completed: bool = False
 
 class TaskRead(Task):
     pass
 
-class TaskUpdate(Task):
+class TaskUpdate(BaseModel):
     # For update, all fields are optional
     title: Optional[str] = None
     description: Optional[str] = None
     completed: Optional[bool] = None
-    created_at: Optional[datetime] = None # Exclude from update payload
-    updated_at: Optional[datetime] = None # Exclude from update payload
-    user_id: Optional[int] = None # Cannot change user_id via update
 
 task_router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
@@ -38,7 +34,12 @@ async def create_task(
     current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
-    db_task = Task.model_validate(task, update={"user_id": current_user.id})
+    db_task = Task(
+        title=task.title,
+        description=task.description,
+        completed=task.completed,
+        user_id=current_user.id
+    )
     session.add(db_task)
     session.commit()
     session.refresh(db_task)
@@ -73,10 +74,11 @@ async def update_task(
     task = session.exec(select(Task).where(Task.id == task_id, Task.user_id == current_user.id)).first()
     if not task:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
-    
-    task_data = task_update.model_dump(exclude_unset=True)
-    task.sqlmodel_update(task_data)
-    
+
+    update_data = task_update.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(task, field, value)
+
     session.add(task)
     session.commit()
     session.refresh(task)
