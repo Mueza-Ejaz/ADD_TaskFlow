@@ -117,11 +117,12 @@ from sqlmodel import Session, select
 from typing import Optional
 from pydantic import BaseModel
 
-from ....database import get_session
-from ....models.user import User
-from ....auth.password import hash_password, verify_password
-from ....auth.jwt_handler import create_access_token
-from ...deps import get_current_user
+from backend.src.database import get_session
+from backend.src.models.user import User
+from backend.src.auth.password import hash_password, verify_password
+from backend.src.auth.jwt_handler import create_access_token
+from backend.src.config import settings
+from backend.src.api.deps import get_current_user
 
 import time
 

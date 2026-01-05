@@ -29,6 +29,7 @@ Thumbs.db
 .idea/
 
 # Docker
+Dockerfile*
 .dockerignore
 *.log*
 coverage/

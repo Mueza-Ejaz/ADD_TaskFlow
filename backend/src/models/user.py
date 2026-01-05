@@ -10,3 +10,5 @@ class User(SQLModel, table=True):
     full_name: Optional[str] = Field(default=None, max_length=100)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow, sa_column_kwargs={"onupdate": datetime.utcnow})
+
+    __table_args__ = {"extend_existing": True}

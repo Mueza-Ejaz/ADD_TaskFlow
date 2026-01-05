@@ -23,8 +23,8 @@
 
 **Purpose**: Project initialization and basic structure. Although the feature directory is set up, these tasks ensure proper project configuration.
 
--   [ ] T001 Configure backend environment if needed (e.g., install dependencies if not already done)
--   [ ] T002 Configure frontend environment if needed (e.g., install dependencies if not already done)
+-   [x] T001 Configure backend environment if needed (e.g., install dependencies if not already done)
+-   [x] T002 Configure frontend environment if needed (e.g., install dependencies if not already done)
 
 ---
 
@@ -36,13 +36,13 @@
 
 ### Implementation for Foundational Tasks
 
--   [ ] T003 [P] Update database schema for `Task` entity in `backend/src/models/task.py` (add `user_id`, `priority`, `due_date`, `status` columns).
--   [ ] T004 [P] Create Pydantic schema for `Task` and `TaskCreate`/`TaskUpdate` in `backend/src/schemas/task.py`.
--   [ ] T005 [P] Implement base `Task` service layer for database interactions in `backend/src/services/task_service.py`.
--   [ ] T006 [P] Configure FastAPI router for tasks under `/api/v1/tasks` in `backend/src/api/v1/endpoints/tasks.py`.
--   [ ] T007 Implement middleware for user-specific task isolation in `backend/src/core/middleware.py` (if not already handled by JWT).
--   [ ] T008 Implement basic unit tests for `Task` model and schemas in `backend/tests/test_task_models.py`.
--   [ ] T009 Implement basic unit tests for `Task` service layer in `backend/tests/test_task_service.py`.
+-   [x] T003 [P] Update database schema for `Task` entity in `backend/src/models/task.py` (add `user_id`, `priority`, `due_date`, `status` columns).
+-   [x] T004 [P] Create Pydantic schema for `Task` and `TaskCreate`/`TaskUpdate` in `backend/src/schemas/task.py`.
+-   [x] T005 [P] Implement base `Task` service layer for database interactions in `backend/src/services/task_service.py`.
+-   [x] T006 [P] Configure FastAPI router for tasks under `/api/v1/tasks` in `backend/src/api/v1/endpoints/tasks.py`.
+-   [x] T007 Implement middleware for user-specific task isolation in `backend/src/core/middleware.py` (if not already handled by JWT).
+-   [x] T008 Implement basic unit tests for `Task` model and schemas in `backend/tests/test_task_models.py`.
+-   [x] T009 Implement basic unit tests for `Task` service layer in `backend/tests/test_task_service.py`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -56,17 +56,17 @@
 
 ### Tests for User Story 1
 
--   [ ] T010 [P] [US1] Write frontend unit tests for `TaskForm` component in `frontend/components/TaskForm.test.tsx`.
--   [ ] T011 [P] [US1] Write frontend integration tests for create task flow in `frontend/tests/integration/create_task.test.tsx`.
--   [ ] T012 [P] [US1] Write backend integration tests for `POST /api/v1/tasks` endpoint in `backend/tests/test_task_api.py`.
+-   [x] T010 [P] [US1] Write frontend unit tests for `TaskForm` component in `frontend/components/TaskForm.test.tsx`.
+-   [x] T011 [P] [US1] Write frontend integration tests for create task flow in `frontend/tests/integration/create_task.test.tsx`.
+-   [x] T012 [P] [US1] Write backend integration tests for `POST /api/v1/tasks` endpoint in `backend/tests/test_task_api.py`.
 
 ### Implementation for User Story 1
 
--   [ ] T013 [P] [US1] Create `TaskForm` React component in `frontend/components/TaskForm.tsx` (using React Hook Form and Zod).
--   [ ] T014 [P] [US1] Implement generic `Modal` UI component in `frontend/components/ui/Modal.tsx`.
--   [ ] T015 [US1] Integrate `TaskForm` into a modal for task creation in `frontend/app/dashboard/page.tsx`.
--   [ ] T016 [US1] Implement `POST /api/v1/tasks` endpoint in `backend/src/api/v1/endpoints/tasks.py` to create tasks with user_id.
--   [ ] T017 [US1] Add React Query mutation for creating tasks with optimistic updates in `frontend/hooks/useTasks.ts`.
+-   [x] T013 [P] [US1] Create `TaskForm` React component in `frontend/components/TaskForm.tsx` (using React Hook Form and Zod).
+-   [x] T014 [P] [US1] Implement generic `Modal` UI component in `frontend/components/ui/Modal.tsx`.
+-   [x] T015 [US1] Integrate `TaskForm` into a modal for task creation in `frontend/app/dashboard/page.tsx`.
+-   [x] T016 [US1] Implement `POST /api/v1/tasks` endpoint in `backend/src/api/v1/endpoints/tasks.py` to create tasks with user_id.
+-   [x] T017 [US1] Add React Query mutation for creating tasks with optimistic updates in `frontend/hooks/useTasks.ts`.
 
 **Checkpoint**: User Story 1 should be fully functional and testable independently
 
@@ -80,18 +80,18 @@
 
 ### Tests for User Story 2
 
--   [ ] T018 [P] [US2] Write frontend unit tests for `TaskCard` component in `frontend/components/TaskCard.test.tsx`.
--   [ ] T019 [P] [US2] Write frontend integration tests for dashboard loading and task display in `frontend/tests/integration/view_dashboard.test.tsx`.
--   [ ] T020 [P] [US2] Write backend integration tests for `GET /api/v1/tasks` endpoint in `backend/tests/test_task_api.py`.
+-   [x] T018 [P] [US2] Write frontend unit tests for `TaskCard` component in `frontend/components/TaskCard.test.tsx`.
+-   [x] T019 [P] [US2] Write frontend integration tests for dashboard loading and task display in `frontend/tests/integration/view_dashboard.test.tsx`.
+-   [x] T020 [P] [US2] Write backend integration tests for `GET /api/v1/tasks` endpoint in `backend/tests/test_task_api.py`.
 
 ### Implementation for User Story 2
 
--   [ ] T021 [P] [US2] Design and implement dashboard page layout in `frontend/app/dashboard/page.tsx`.
--   [ ] T022 [P] [US2] Create `TaskCard` component to display individual task details in `frontend/components/TaskCard.tsx`.
--   [ ] T023 [P] [US2] Create `TaskList` and `TaskKanban` components for displaying tasks in columns in `frontend/components/TaskList.tsx`, `frontend/components/TaskKanban.tsx`.
--   [ ] T024 [US2] Implement `GET /api/v1/tasks` endpoint in `backend/src/api/v1/endpoints/tasks.py` to fetch user-specific tasks.
--   [ ] T025 [US2] Configure React Query hook for fetching and caching tasks in `frontend/hooks/useTasks.ts`.
--   [ ] T026 [US2] Implement loading and empty states for the dashboard in `frontend/app/dashboard/page.tsx` and `frontend/components/EmptyState.tsx`.
+-   [x] T021 [P] [US2] Design and implement dashboard page layout in `frontend/app/dashboard/page.tsx`.
+-   [x] T022 [P] [US2] Create `TaskCard` component to display individual task details in `frontend/components/TaskCard.tsx`.
+-   [x] T023 [P] [US2] Create `TaskList` and `TaskKanban` components for displaying tasks in columns in `frontend/components/TaskList.tsx`, `frontend/components/TaskKanban.tsx`.
+-   [x] T024 [US2] Implement `GET /api/v1/tasks` endpoint in `backend/src/api/v1/endpoints/tasks.py` to fetch user-specific tasks.
+-   [x] T025 [US2] Configure React Query hook for fetching and caching tasks in `frontend/hooks/useTasks.ts`.
+-   [x] T026 [US2] Implement loading and empty states for the dashboard in `frontend/app/dashboard/page.tsx` and `frontend/components/EmptyState.tsx`.
 
 **Checkpoint**: User Stories 1 AND 2 should both work independently
 
@@ -105,8 +105,8 @@
 
 ### Tests for User Story 4
 
--   [ ] T027 [P] [US4] Write frontend unit tests for `TaskForm` (edit mode) in `frontend/components/TaskForm.test.tsx`.
--   [ ] T028 [P] [US4] Write frontend integration tests for update task flow in `frontend/tests/integration/update_task.test.tsx`.
+-   [x] T027 [P] [US4] Write frontend unit tests for `TaskForm` (edit mode) in `frontend/components/TaskForm.test.tsx`.
+-   [x] T028 [P] [US4] Write frontend integration tests for update task flow in `frontend/tests/integration/update_task.test.tsx`.
 -   [ ] T029 [P] [US4] Write backend integration tests for `PUT /api/v1/tasks/{task_id}` endpoint in `backend/tests/test_task_api.py`.
 
 ### Implementation for User Story 4

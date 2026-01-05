@@ -11,13 +11,21 @@ const customJestConfig = {
   testEnvironment: 'jest-environment-jsdom',
   moduleNameMapper: {
     // Handle module aliases (if any)
-    '^@/components/(.*)$': '<rootDir>/components/$1',
-    '^@/lib/(.*)$': '<rootDir>/lib/$1',
+    '^@/(.*)$': '<rootDir>/$1',
     // More aliases can be added here
   },
+  moduleDirectories: ['node_modules', '<rootDir>/'],
   // Add more setup options before each test is run
   // setupFiles: ['<rootDir>/jest.setup.js'],
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
-module.exports = createJestConfig(customJestConfig);
+module.exports = createJestConfig({
+  setupFilesAfterEnv: customJestConfig.setupFilesAfterEnv,
+  testEnvironment: customJestConfig.testEnvironment,
+  moduleNameMapper: customJestConfig.moduleNameMapper,
+  moduleDirectories: customJestConfig.moduleDirectories,
+  // Add more setup options before each test is run
+  // setupFiles: customJestConfig.setupFiles, // Uncomment if you use it
+  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/tests/e2e/'],
+});

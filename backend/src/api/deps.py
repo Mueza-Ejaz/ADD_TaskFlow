@@ -4,10 +4,10 @@ from jose import jwt, JWTError
 from pydantic import ValidationError
 from sqlmodel import Session, select
 
-from ..auth.jwt_handler import verify_token
-from ..models.user import User
-from ..database import get_session
-from ..config import settings
+from backend.src.auth.jwt_handler import verify_token
+from backend.src.models.user import User
+from backend.src.database import get_session
+from backend.src.config import settings
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 

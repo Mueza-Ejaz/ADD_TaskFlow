@@ -3,12 +3,11 @@ from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware # Added BaseHTTPMiddleware
-from .config import settings
-from .api.v1.health import health_router
-from .api.v1.endpoints.auth import auth_router
-from .api.v1.endpoints.tasks import task_router # Import task_router
-
-from .database import create_db_and_tables # Import create_db_and_tables
+from backend.src.config import settings
+from backend.src.api.v1.health import health_router
+from backend.src.api.v1.endpoints.auth import auth_router
+from backend.src.api.v1.endpoints.tasks import task_router
+from backend.src.database import create_db_and_tables
 
 # Custom Security Headers Middleware
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
