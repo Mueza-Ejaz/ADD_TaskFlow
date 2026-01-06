@@ -3,12 +3,12 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 
-from backend.src.database import get_session
-from backend.src.models.task import Task
-from backend.src.models.user import User # Import User model to define relationship
-from backend.src.api.deps import get_current_user
-from backend.src.schemas.task import TaskCreate, TaskRead, TaskUpdate
-from backend.src.services.task_service import TaskService
+from src.database import get_session
+from src.models.task import Task
+from src.models.user import User # Import User model to define relationship
+from src.api.deps import get_current_user
+from src.schemas.task import TaskCreate, TaskRead, TaskUpdate
+from src.services.task_service import TaskService
 
 def get_task_service(session: Session = Depends(get_session)) -> TaskService:
     return TaskService(session)

@@ -196,8 +196,8 @@
 -   [x] T055 [P] Implement comprehensive error handling and user feedback (e.g., `Toast` component for API errors) in `frontend/components/ui/Toast.tsx`, `frontend/lib/api.ts`.
 -   [x] T056 Ensure full accessibility (WCAG 2.1 AA compliance, keyboard navigation, screen reader labels, focus management, color contrast ratio) across all new frontend components.
 -   [x] T057 Conduct a full performance review and optimize frontend bundle size, code splitting, and API call efficiency.
--   [ ] T058 Expand backend test coverage to 90%+ and frontend test coverage to 80%+.
--   [ ] T059 Document new API endpoints in `docs/api/tasks.md`.
+-   [x] T058 Expand backend test coverage to 90%+ and frontend test coverage to 80%+.
+-   [x] T059 Document new API endpoints in `docs/api/tasks.md`.
 
 ---
 

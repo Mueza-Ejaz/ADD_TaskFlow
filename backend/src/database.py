@@ -16,8 +16,13 @@ engine = create_engine(settings.DATABASE_URL, echo=True, connect_args=connect_ar
 
 def create_db_and_tables():
     # Create directory if it doesn't exist
-    db_path = settings.DATABASE_URL.replace("sqlite:///", "")
-    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    if "sqlite:///" in settings.DATABASE_URL:
+        db_path = settings.DATABASE_URL.replace("sqlite:///", "")
+        # Handle relative paths properly
+        db_dir = os.path.dirname(os.path.abspath(db_path)) if os.path.dirname(db_path) else os.getcwd()
+        os.makedirs(db_dir, exist_ok=True)
+
+    # Create all tables based on models
     SQLModel.metadata.create_all(engine)
 
 def get_session():
@@ -26,6 +31,7 @@ def get_session():
 
 def test_connection():
     try:
+
         with engine.connect() as connection:
             connection.execute(SQLModel.text("SELECT 1")) # Use SQLModel.text for raw SQL
         print("Database connection successful!")

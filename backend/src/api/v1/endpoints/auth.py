@@ -117,12 +117,12 @@ from sqlmodel import Session, select
 from typing import Optional
 from pydantic import BaseModel
 
-from backend.src.database import get_session
-from backend.src.models.user import User
-from backend.src.auth.password import hash_password, verify_password
-from backend.src.auth.jwt_handler import create_access_token
-from backend.src.config import settings
-from backend.src.api.deps import get_current_user
+from src.database import get_session
+from src.models.user import User
+from src.auth.password import hash_password, verify_password
+from src.auth.jwt_handler import create_access_token
+from src.config import settings
+from src.api.deps import get_current_user
 
 import time
 
@@ -182,6 +182,7 @@ async def signup_user(user_data: UserCreate, session: Session = Depends(get_sess
     try:
         session.commit()
         session.refresh(db_user)
+        print(f"User created in signup: ID={db_user.id}, Email={db_user.email}")
     except IntegrityError:
         session.rollback()
         raise HTTPException(
@@ -201,14 +202,24 @@ async def signup_user(user_data: UserCreate, session: Session = Depends(get_sess
 # --- Login ---
 @auth_router.post("/login", response_model=Token, dependencies=[Depends(rate_limit_dependency)])
 async def login_user(user_data: UserLogin, session: Session = Depends(get_session)):
+    print(f"Attempting login for email: {user_data.email}")
     user = session.exec(select(User).where(User.email == user_data.email)).first()
-    if not user or not verify_password(user_data.password, user.hashed_password):
+    if not user:
+        print(f"User not found for email: {user_data.email}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    if not verify_password(user_data.password, user.hashed_password):
+        print(f"Incorrect password for user: {user_data.email}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token = create_access_token(data={"sub": user.email})
+    print(f"Access token generated: {access_token[:10]}...") # Print first 10 chars
     return {"access_token": access_token, "token_type": "bearer"}
 
 # --- Logout ---

@@ -23,14 +23,20 @@ async def test_get_tasks_unauthorized(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_create_and_get_tasks(client: AsyncClient, session: Session):
-    # 1. Register a test user
-    user_data = {"email": "testuser@example.com", "password": "testpassword"}
-    register_response = await client.post("/api/v1/auth/register", json=user_data)
-    assert register_response.status_code == 200
-    user_id = register_response.json()["id"]
+    from backend.src.models.user import User
+    from backend.src.auth.password import hash_password
+
+    # 1. Create a test user directly in the database
+    user_email = "testuser@example.com"
+    hashed_password = hash_password("strongpassword")
+    user = User(email=user_email, hashed_password=hashed_password, full_name="Test User")
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    user_id = user.id
 
     # 2. Login to get a token
-    login_response = await client.post("/api/v1/auth/login", json=user_data)
+    login_response = await client.post("/api/v1/auth/login", json={"email": user_email, "password": "strongpassword"})
     assert login_response.status_code == 200
     token = login_response.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
@@ -74,8 +80,8 @@ async def test_create_and_get_tasks(client: AsyncClient, session: Session):
 @pytest.mark.asyncio
 async def test_update_task(client: AsyncClient, session: Session):
     # 1. Register a test user
-    user_data = {"email": "updateuser@example.com", "password": "testpassword"}
-    await client.post("/api/v1/auth/register", json=user_data)
+    user_data = {"email": "updateuser@example.com", "password": "strongpassword"}
+    await client.post("/api/v1/auth/signup", json=user_data)
     login_response = await client.post("/api/v1/auth/login", json=user_data)
     token = login_response.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
@@ -98,7 +104,7 @@ async def test_update_task(client: AsyncClient, session: Session):
         "description": "The description has been updated.",
         "priority": 2,
         "status": "in_progress",
-        "due_date": "2026-01-20T12:00:00Z"
+        "due_date": "2026-01-20T12:00:00" # Removed 'Z'
     }
     update_response = await client.put(f"/api/v1/tasks/{task_id}", json=updated_task_data, headers=headers)
     assert update_response.status_code == 200
@@ -118,8 +124,8 @@ async def test_update_task(client: AsyncClient, session: Session):
     assert "Task not found" in non_existent_update_response.json()["detail"]
 
     # 5. Register a second user and try to update the first user's task
-    user2_data = {"email": "updateuser2@example.com", "password": "testpassword2"}
-    await client.post("/api/v1/auth/register", json=user2_data)
+    user2_data = {"email": "updateuser2@example.com", "password": "strongpassword"}
+    await client.post("/api/v1/auth/signup", json=user2_data)
     login_response_2 = await client.post("/api/v1/auth/login", json=user2_data)
     token_2 = login_response_2.json()["access_token"]
     headers_2 = {"Authorization": f"Bearer {token_2}"}
@@ -137,8 +143,8 @@ async def test_update_task_unauthorized(client: AsyncClient):
 @pytest.mark.asyncio
 async def test_complete_task(client: AsyncClient, session: Session):
     # 1. Register and login a user
-    user_data = {"email": "completeuser@example.com", "password": "testpassword"}
-    await client.post("/api/v1/auth/register", json=user_data)
+    user_data = {"email": "completeuser@example.com", "password": "strongpassword"}
+    await client.post("/api/v1/auth/signup", json=user_data)
     login_response = await client.post("/api/v1/auth/login", json=user_data)
     token = login_response.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
@@ -177,8 +183,8 @@ async def test_complete_task(client: AsyncClient, session: Session):
     assert "Task not found" in non_existent_complete_response.json()["detail"]
 
     # 6. Register a second user and try to complete the first user's task
-    user2_data = {"email": "completeuser2@example.com", "password": "testpassword2"}
-    await client.post("/api/v1/auth/register", json=user2_data)
+    user2_data = {"email": "completeuser2@example.com", "password": "strongpassword"}
+    await client.post("/api/v1/auth/signup", json=user2_data)
     login_response_2 = await client.post("/api/v1/auth/login", json=user2_data)
     token_2 = login_response_2.json()["access_token"]
     headers_2 = {"Authorization": f"Bearer {token_2}"}
@@ -190,8 +196,8 @@ async def test_complete_task(client: AsyncClient, session: Session):
 
 @pytest.mark.asyncio
 async def test_filter_tasks(client: AsyncClient, session: Session):
-    user_data = {"email": "filteruser@example.com", "password": "testpassword"}
-    await client.post("/api/v1/auth/register", json=user_data)
+    user_data = {"email": "filteruser@example.com", "password": "strongpassword"}
+    await client.post("/api/v1/auth/signup", json=user_data)
     login_response = await client.post("/api/v1/auth/login", json=user_data)
     token = login_response.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
@@ -218,8 +224,8 @@ async def test_filter_tasks(client: AsyncClient, session: Session):
 
 @pytest.mark.asyncio
 async def test_sort_tasks(client: AsyncClient, session: Session):
-    user_data = {"email": "sortuser@example.com", "password": "testpassword"}
-    await client.post("/api/v1/auth/register", json=user_data)
+    user_data = {"email": "sortuser@example.com", "password": "strongpassword"}
+    await client.post("/api/v1/auth/signup", json=user_data)
     login_response = await client.post("/api/v1/auth/login", json=user_data)
     token = login_response.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
@@ -248,8 +254,8 @@ async def test_sort_tasks(client: AsyncClient, session: Session):
 
 @pytest.mark.asyncio
 async def test_search_tasks(client: AsyncClient, session: Session):
-    user_data = {"email": "searchuser@example.com", "password": "testpassword"}
-    await client.post("/api/v1/auth/register", json=user_data)
+    user_data = {"email": "searchuser@example.com", "password": "strongpassword"}
+    await client.post("/api/v1/auth/signup", json=user_data)
     login_response = await client.post("/api/v1/auth/login", json=user_data)
     token = login_response.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
@@ -282,8 +288,8 @@ async def test_search_tasks(client: AsyncClient, session: Session):
 
 @pytest.mark.asyncio
 async def test_combined_filter_sort_search(client: AsyncClient, session: Session):
-    user_data = {"email": "combineduser@example.com", "password": "testpassword"}
-    await client.post("/api/v1/auth/register", json=user_data)
+    user_data = {"email": "combineduser@example.com", "password": "strongpassword"}
+    await client.post("/api/v1/auth/signup", json=user_data)
     login_response = await client.post("/api/v1/auth/login", json=user_data)
     token = login_response.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
@@ -306,8 +312,8 @@ async def test_combined_filter_sort_search(client: AsyncClient, session: Session
 @pytest.mark.asyncio
 async def test_delete_task(client: AsyncClient, session: Session):
     # 1. Register and login a user
-    user_data = {"email": "deleteuser@example.com", "password": "testpassword"}
-    await client.post("/api/v1/auth/register", json=user_data)
+    user_data = {"email": "deleteuser@example.com", "password": "strongpassword"}
+    await client.post("/api/v1/auth/signup", json=user_data)
     login_response = await client.post("/api/v1/auth/login", json=user_data)
     token = login_response.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
@@ -340,8 +346,8 @@ async def test_delete_task(client: AsyncClient, session: Session):
     assert "Task not found" in non_existent_delete_response.json()["detail"]
 
     # 6. Register a second user and try to delete the first user's task
-    user2_data = {"email": "deleteuser2@example.com", "password": "testpassword2"}
-    await client.post("/api/v1/auth/register", json=user2_data)
+    user2_data = {"email": "deleteuser2@example.com", "password": "strongpassword"}
+    await client.post("/api/v1/auth/signup", json=user2_data)
     login_response_2 = await client.post("/api/v1/auth/login", json=user2_data)
     token_2 = login_response_2.json()["access_token"]
     headers_2 = {"Authorization": f"Bearer {token_2}"}

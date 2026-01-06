@@ -1,7 +1,7 @@
 from typing import List, Optional
 from sqlmodel import Session, select
-from backend.src.models.task import Task
-from backend.src.schemas.task import TaskCreate, TaskUpdate
+from src.models.task import Task
+from src.schemas.task import TaskCreate, TaskUpdate
 
 class TaskService:
     def __init__(self, session: Session):

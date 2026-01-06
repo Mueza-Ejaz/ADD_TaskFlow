@@ -3,11 +3,11 @@ from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware # Added BaseHTTPMiddleware
-from backend.src.config import settings
-from backend.src.api.v1.health import health_router
-from backend.src.api.v1.endpoints.auth import auth_router
-from backend.src.api.v1.endpoints.tasks import task_router
-from backend.src.database import create_db_and_tables
+from src.config import settings
+from src.api.v1.health import health_router
+from src.api.v1.endpoints.auth import auth_router
+from src.api.v1.endpoints.tasks import task_router
+from src.database import create_db_and_tables
 
 # Custom Security Headers Middleware
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
@@ -37,9 +37,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     print("FastAPI application shutting down.")
 
 app = FastAPI(
-    title="ADD_TaskFlow-App API",
+    title="TaskFlow API",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
+    debug=True
 )
 
 # Configure CORS
@@ -56,7 +57,7 @@ app.add_middleware(SecurityHeadersMiddleware) # Add this line
 
 @app.get("/")
 async def read_root():
-    return {"message": "Welcome to ADD_TaskFlow-App API"}
+    return {"message": "Welcome to TaskFlow API"}
 
 # Include routers
 app.include_router(health_router, prefix="/api/v1")
