@@ -27,9 +27,21 @@ async def create_task(
 @task_router.get("/", response_model=List[TaskRead])
 async def read_tasks(
     current_user: User = Depends(get_current_user),
-    task_service: TaskService = Depends(get_task_service)
+    task_service: TaskService = Depends(get_task_service),
+    status: Optional[str] = None,
+    priority: Optional[int] = None,
+    search: Optional[str] = None,
+    sort_by: Optional[str] = None,
+    sort_order: Optional[str] = None,
 ):
-    tasks = task_service.get_user_tasks(current_user.id)
+    tasks = task_service.get_user_tasks(
+        user_id=current_user.id,
+        status=status,
+        priority=priority,
+        search=search,
+        sort_by=sort_by,
+        sort_order=sort_order
+    )
     return tasks
 
 @task_router.get("/{task_id}", response_model=TaskRead)

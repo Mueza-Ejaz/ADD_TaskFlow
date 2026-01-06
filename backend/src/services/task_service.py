@@ -20,8 +20,33 @@ class TaskService:
             return task
         return None
 
-    def get_user_tasks(self, user_id: int) -> List[Task]:
-        tasks = self.session.exec(select(Task).where(Task.user_id == user_id)).all()
+    def get_user_tasks(
+        self,
+        user_id: int,
+        status: Optional[str] = None,
+        priority: Optional[int] = None,
+        search: Optional[str] = None,
+        sort_by: Optional[str] = None,
+        sort_order: Optional[str] = None,
+    ) -> List[Task]:
+        query = select(Task).where(Task.user_id == user_id)
+
+        if status:
+            query = query.where(Task.status == status)
+        if priority:
+            query = query.where(Task.priority == priority)
+        if search:
+            query = query.where(
+                (Task.title.ilike(f"%{search}%")) | (Task.description.ilike(f"%{search}%"))
+            )
+
+        if sort_by:
+            if sort_order == "desc":
+                query = query.order_by(getattr(Task, sort_by).desc())
+            else:
+                query = query.order_by(getattr(Task, sort_by).asc())
+
+        tasks = self.session.exec(query).all()
         return tasks
 
     def update_task(self, task_id: int, task_update: TaskUpdate, user_id: int) -> Optional[Task]:

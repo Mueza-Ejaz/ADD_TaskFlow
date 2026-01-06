@@ -107,13 +107,13 @@
 
 -   [x] T027 [P] [US4] Write frontend unit tests for `TaskForm` (edit mode) in `frontend/components/TaskForm.test.tsx`.
 -   [x] T028 [P] [US4] Write frontend integration tests for update task flow in `frontend/tests/integration/update_task.test.tsx`.
--   [ ] T029 [P] [US4] Write backend integration tests for `PUT /api/v1/tasks/{task_id}` endpoint in `backend/tests/test_task_api.py`.
+-   [x] T029 [P] [US4] Write backend integration tests for `PUT /api/v1/tasks/{task_id}` endpoint in `backend/tests/test_task_api.py`.
 
 ### Implementation for User Story 4
 
--   [ ] T030 [US4] Implement `PUT /api/v1/tasks/{task_id}` endpoint in `backend/src/api/v1/endpoints/tasks.py` to update task details.
--   [ ] T031 [US4] Add React Query mutation for updating tasks with optimistic updates in `frontend/hooks/useTasks.ts`.
--   [ ] T032 [US4] Integrate `TaskForm` (reused) into a modal for task editing, pre-filling with existing data in `frontend/app/dashboard/page.tsx`.
+-   [x] T030 [US4] Implement `PUT /api/v1/tasks/{task_id}` endpoint in `backend/src/api/v1/endpoints/tasks.py` to update task details.
+-   [x] T031 [US4] Add React Query mutation for updating tasks with optimistic updates in `frontend/hooks/useTasks.ts`.
+-   [x] T032 [US4] Integrate `TaskForm` (reused) into a modal for task editing, pre-filling with existing data in `frontend/app/dashboard/page.tsx`.
 
 **Checkpoint**: User Stories 1, 2 AND 4 should all work independently
 
@@ -127,16 +127,16 @@
 
 ### Tests for User Story 6
 
--   [ ] T033 [P] [US6] Write frontend unit tests for Drag & Drop functionality in `frontend/components/TaskKanban.test.tsx`.
--   [ ] T034 [P] [US6] Write frontend integration tests for status toggle via drag & drop in `frontend/tests/integration/toggle_status.test.tsx`.
--   [ ] T035 [P] [US6] Write backend integration tests for `PATCH /api/v1/tasks/{task_id}/complete` endpoint in `backend/tests/test_task_api.py`.
+-   [x] T033 [P] [US6] Write frontend unit tests for Drag & Drop functionality in `frontend/components/TaskKanban.test.tsx`.
+-   [x] T034 [P] [US6] Write frontend integration tests for status toggle via drag & drop in `frontend/tests/integration/toggle_status.test.tsx`.
+-   [x] T035 [P] [US6] Write backend integration tests for `PATCH /api/v1/tasks/{task_id}/complete` endpoint in `backend/tests/test_task_api.py`.
 
 ### Implementation for User Story 6
 
--   [ ] T036 [US6] Implement `PATCH /api/v1/tasks/{task_id}/complete` endpoint in `backend/src/api/v1/endpoints/tasks.py` to update task status.
--   [ ] T037 [US6] Integrate `@dnd-kit` into `TaskKanban` component for drag-and-drop functionality in `frontend/components/TaskKanban.tsx`.
--   [ ] T038 [US6] Add React Query mutation for toggling task status with optimistic updates in `frontend/hooks/useTasks.ts`.
--   [ ] T039 [US6] Implement real-time updates for task status changes (e.g., using WebSockets or polling if necessary, or simply relying on React Query re-fetch).
+-   [x] T036 [US6] Implement `PATCH /api/v1/tasks/{task_id}/complete` endpoint in `backend/src/api/v1/endpoints/tasks.py` to update task status.
+-   [x] T037 [US6] Integrate `@dnd-kit` into `TaskKanban` component for drag-and-drop functionality in `frontend/components/TaskKanban.tsx`.
+-   [x] T038 [US6] Add React Query mutation for toggling task status with optimistic updates in `frontend/hooks/useTasks.ts`.
+-   [x] T039 [US6] Implement real-time updates for task status changes (e.g., using WebSockets or polling if necessary, or simply relying on React Query re-fetch).
 
 **Checkpoint**: All P1 user stories are complete and independently functional
 
@@ -150,17 +150,17 @@
 
 ### Tests for User Story 3
 
--   [ ] T040 [P] [US3] Write frontend unit tests for `TaskFilters` component in `frontend/components/TaskFilters.test.tsx`.
--   [ ] T041 [P] [US3] Write frontend integration tests for filter, sort, search functionality in `frontend/tests/integration/filter_sort_search.test.tsx`.
--   [ ] T042 [P] [US3] Write backend integration tests for filtering, sorting, and searching logic in `backend/tests/test_task_api.py`.
+-   [x] T040 [P] [US3] Write frontend unit tests for `TaskFilters` component in `frontend/components/TaskFilters.test.tsx`.
+-   [x] T041 [P] [US3] Write frontend integration tests for filter, sort, search functionality in `frontend/tests/integration/filter_sort_search.test.tsx`.
+-   [x] T042 [P] [US3] Write backend integration tests for filtering, sorting, and searching logic in `backend/tests/test_task_api.py`.
 
 ### Implementation for User Story 3
 
--   [ ] T043 [P] [US3] Create `TaskFilters` component with priority, status, and due date filters in `frontend/components/TaskFilters.tsx`.
--   [ ] T044 [P] [US3] Implement search input functionality in `frontend/components/TaskFilters.tsx`.
--   [ ] T045 [P] [US3] Implement sorting controls for due date and priority in `frontend/components/TaskFilters.tsx`.
--   [ ] T046 [US3] Update `GET /api/v1/tasks` endpoint in `backend/src/api/v1/endpoints/tasks.py` to accept filter, sort, and search parameters.
--   [ ] T047 [US3] Integrate filter, sort, and search parameters with React Query for task fetching in `frontend/hooks/useTasks.ts`.
+-   [x] T043 [P] [US3] Create `TaskFilters` component with priority, status, and due date filters in `frontend/components/TaskFilters.tsx`.
+-   [x] T044 [P] [US3] Implement search input functionality in `frontend/components/TaskFilters.tsx`.
+-   [x] T045 [P] [US3] Implement sorting controls for due date and priority in `frontend/components/TaskFilters.tsx`.
+-   [x] T046 [US3] Update `GET /api/v1/tasks` endpoint in `backend/src/api/v1/endpoints/tasks.py` to accept filter, sort, and search parameters.
+-   [x] T047 [US3] Integrate filter, sort, and search parameters with React Query for task fetching in `frontend/hooks/useTasks.ts`.
 
 **Checkpoint**: All P1 and P2 user stories are complete and independently functional
 
@@ -174,9 +174,9 @@
 
 ### Tests for User Story 5
 
--   [ ] T048 [P] [US5] Write frontend unit tests for `ConfirmationModal` component in `frontend/components/ConfirmationModal.test.tsx`.
--   [ ] T049 [P] [US5] Write frontend integration tests for delete task flow in `frontend/tests/integration/delete_task.test.tsx`.
--   [ ] T050 [P] [US5] Write backend integration tests for `DELETE /api/v1/tasks/{task_id}` endpoint in `backend/tests/test_task_api.py`.
+-   [x] T048 [P] [US5] Write frontend unit tests for `ConfirmationModal` component in `frontend/components/ConfirmationModal.test.tsx`.
+-   [x] T049 [P] [US5] Write frontend integration tests for delete task flow in `frontend/tests/integration/delete_task.test.tsx`.
+-   [x] T050 [P] [US5] Write backend integration tests for `DELETE /api/v1/tasks/{task_id}` endpoint in `backend/tests/test_task_api.py`.
 
 ### Implementation for User Story 5
 
