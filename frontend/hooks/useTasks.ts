@@ -25,7 +25,11 @@ export const useCreateTask = () => {
   const { data: session } = useSession();
   const { showToast } = useToast();
 
-  return useMutation<TaskRead, Error, TaskCreate>({
+  interface MutationContext {
+    previousTasks: TaskRead[] | undefined;
+  }
+
+  return useMutation<TaskRead, Error, TaskCreate, MutationContext>({
     mutationFn: (newTask: TaskCreate) => createTaskApi(newTask, session?.accessToken),
     onMutate: async (newTask: TaskCreate) => {
       // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
@@ -37,11 +41,11 @@ export const useCreateTask = () => {
       // Optimistically update to the new value
       queryClient.setQueryData<TaskRead[]>(['tasks'], (old) => {
         // Create a temporary ID for the new task for optimistic update
-        const optimisticTask = { 
-          ...newTask, 
+        const optimisticTask = {
+          ...newTask,
           id: Date.now(), // Temporary ID
           status: 'pending', // Default status for optimistic update
-          user_id: session?.user?.id || 0, // Placeholder user ID
+          user_id: parseInt(session?.user?.id as string) || 0, // Placeholder user ID
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         };
@@ -67,7 +71,11 @@ export const useUpdateTask = () => {
   const { data: session } = useSession();
   const { showToast } = useToast();
 
-  return useMutation<TaskRead, Error, TaskUpdatePayload>({
+  interface MutationContext {
+    previousTasks: TaskRead[] | undefined;
+  }
+
+  return useMutation<TaskRead, Error, TaskUpdatePayload, MutationContext>({
     mutationFn: (updatedTask: TaskUpdatePayload) => updateTaskApi(updatedTask, session?.accessToken),
     onMutate: async (updatedTask: TaskUpdatePayload) => {
       await queryClient.cancelQueries({ queryKey: ['tasks'] });
@@ -96,7 +104,11 @@ export const useToggleTaskStatus = () => {
   const { data: session } = useSession();
   const { showToast } = useToast();
 
-  return useMutation<TaskRead, Error, TaskStatusUpdatePayload>({
+  interface MutationContext {
+    previousTasks: TaskRead[] | undefined;
+  }
+
+  return useMutation<TaskRead, Error, TaskStatusUpdatePayload, MutationContext>({
     mutationFn: (payload: TaskStatusUpdatePayload) => toggleTaskStatusApi(payload, session?.accessToken),
     onMutate: async (newStatus: TaskStatusUpdatePayload) => {
       await queryClient.cancelQueries({ queryKey: ['tasks'] });
@@ -125,7 +137,11 @@ export const useDeleteTask = () => {
   const { data: session } = useSession();
   const { showToast } = useToast();
 
-  return useMutation<void, Error, number>({
+  interface MutationContext {
+    previousTasks: TaskRead[] | undefined;
+  }
+
+  return useMutation<void, Error, number, MutationContext>({
     mutationFn: (taskId: number) => deleteTaskApi(taskId, session?.accessToken),
     onMutate: async (taskId: number) => {
       await queryClient.cancelQueries({ queryKey: ['tasks'] });

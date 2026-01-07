@@ -17,18 +17,18 @@ export interface TaskRead {
 }
 
 // Type for updating a task, including its ID
-type TaskUpdatePayload = {
+export type TaskUpdatePayload = {
   id: number;
 } & Partial<TaskCreate>; // Partial because not all fields need to be updated
 
 // Type for updating task status
-type TaskStatusUpdatePayload = {
-  id: string;
+export type TaskStatusUpdatePayload = {
+  id: number;
   status: string;
   completed?: boolean; // Optional, as status change might imply completion
 };
 
-interface TaskFilters {
+export interface TaskFilters {
   status?: string;
   priority?: string; // Sticking to string as HTML select values are strings
   search?: string;

@@ -53,7 +53,7 @@ This phase implements user authentication using NextAuth.js on the frontend and 
     ```
     NEXTAUTH_SECRET="your_nextauth_secret_key_here" # Generate a strong secret
     NEXTAUTH_URL="http://localhost:3000" # Your frontend URL
-    NEXT_PUBLIC_API_URL="http://localhost:8000" # Your backend API URL
+    NEXT_PUBLIC_API_BASE_URL="http://localhost:8001" # Your backend API URL
     ```
     *   **NEXTAUTH_SECRET**: A random string used to hash tokens, sign cookies, and generate cryptographic keys. You can generate one using `openssl rand -base64 32` or similar.
     *   **NEXTAUTH_URL**: The canonical URL of your frontend application.
@@ -79,4 +79,78 @@ The database will automatically create `users` table and update `tasks` table wi
 
 ## Getting Started
 
-More detailed setup instructions can be found in `docs/setup.md`.
+### Prerequisites
+
+Make sure you have the following installed:
+- Node.js (v18 or higher)
+- Python (v3.12 or higher)
+- pip (Python package installer)
+
+### Installation and Setup
+
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd ADD_TaskFlow-App
+   ```
+
+2. **Set up the backend:**
+   ```bash
+   # Navigate to the backend directory
+   cd backend
+
+   # Create a virtual environment (recommended)
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+   # Install dependencies
+   pip install -r requirements.txt
+   ```
+
+3. **Set up the frontend:**
+   ```bash
+   # Navigate to the frontend directory
+   cd ../frontend
+
+   # Install dependencies
+   npm install
+   ```
+
+4. **Configure environment variables:**
+
+   For the **backend** (`backend/.env`), ensure you have:
+   ```
+   DATABASE_URL="sqlite:///taskflow.db"
+   JWT_SECRET_KEY=your-super-secret-key-change-in-production
+   JWT_ALGORITHM=HS256
+   ACCESS_TOKEN_EXPIRE_MINUTES=1440
+   REFRESH_TOKEN_EXPIRE_DAYS=7
+   ALLOWED_ORIGINS=http://localhost:3000
+   ```
+
+   For the **frontend** (`frontend/.env.local`), ensure you have:
+   ```
+   NEXTAUTH_SECRET="S*#^A"g-)vU)bII.;odR"qH3bdM7`B"
+   NEXTAUTH_URL="http://localhost:3000"
+   NEXT_PUBLIC_API_BASE_URL="http://localhost:8001"
+   ```
+
+### Running the Application
+
+1. **Start the backend server:**
+   ```bash
+   cd backend
+   uvicorn src.main:app --host localhost --port 8001 --reload
+   ```
+
+2. **In a new terminal, start the frontend:**
+   ```bash
+   cd frontend
+   npm run dev
+   ```
+
+3. **Access the application:**
+   - Frontend: [http://localhost:3000](http://localhost:3000)
+   - Backend API docs: [http://localhost:8001/docs](http://localhost:8001/docs)
+
+The application will now be fully functional with all CRUD operations available on the dashboard.

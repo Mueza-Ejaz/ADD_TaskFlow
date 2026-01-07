@@ -37,9 +37,9 @@ npm install # or yarn install or pnpm install
 Create a `.env.local` file in the `frontend/` directory (if it doesn't exist) and set the backend API URL:
 
 ```
-NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8001
 ```
-*(Adjust `http://localhost:8000` if your backend runs on a different address/port.)*
+*(Adjust `http://localhost:8001` if your backend runs on a different address/port.)*
 
 ### Run Frontend Development Server
 

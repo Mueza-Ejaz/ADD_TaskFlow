@@ -31,7 +31,7 @@ interface TaskRead {
 }
 
 interface TaskKanbanProps {
-  tasks: TaskRead[];
+  initialTasks: TaskRead[];
   onEditTask: (task: TaskRead) => void;
   onDeleteTask: (taskId: number) => void; // Add onDeleteTask prop
 }

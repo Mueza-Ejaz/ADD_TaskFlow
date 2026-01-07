@@ -11,7 +11,7 @@ interface ToastContextType {
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 export const ToastProvider = ({ children }: { children: ReactNode }) => {
-  const [toasts, setToasts] = useState<ToastProps & { id: string }[]>([]);
+  const [toasts, setToasts] = useState<Array<ToastProps & { id: string }>>([]);
 
   const showToast = useCallback((message: string, type?: ToastProps['type'], duration?: number) => {
     const id = Date.now().toString(); // Simple unique ID

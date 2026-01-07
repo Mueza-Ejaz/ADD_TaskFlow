@@ -9,12 +9,15 @@ const buttonVariants = cva(
       variant: {
         primary: 'bg-primary-500 text-white hover:bg-primary-600',
         secondary: 'bg-secondary-500 text-white hover:bg-secondary-600',
+        destructive: 'bg-red-500 text-white hover:bg-red-600', // Added destructive variant
         ghost: 'hover:bg-accent hover:text-accent-foreground',
+        outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
       },
       size: {
         default: 'h-10 py-2 px-4',
         sm: 'h-9 px-3',
         lg: 'h-11 px-8',
+        icon: 'h-10 w-10',
       },
     },
     defaultVariants: {

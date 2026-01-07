@@ -28,15 +28,15 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ currentFilters, onFilt
   };
 
   const handlePriorityChange = (value: string) => {
-    onFilterChange({ priority: value });
+    onFilterChange({ priority: value === 'all' ? '' : value });
   };
 
   const handleStatusChange = (value: string) => {
-    onFilterChange({ status: value });
+    onFilterChange({ status: value === 'all' ? '' : value });
   };
 
   const handleSortByChange = (value: string) => {
-    onFilterChange({ sortBy: value });
+    onFilterChange({ sortBy: value === 'none' ? '' : value });
   };
 
   const handleSortOrderToggle = () => {
@@ -66,7 +66,7 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ currentFilters, onFilt
             <SelectValue placeholder="Filter by priority" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Priorities</SelectItem>
+            <SelectItem value="all">All Priorities</SelectItem>
             <SelectItem value="1">High</SelectItem>
             <SelectItem value="2">Medium</SelectItem>
             <SelectItem value="3">Low</SelectItem>
@@ -82,7 +82,7 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ currentFilters, onFilt
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Statuses</SelectItem>
+            <SelectItem value="all">All Statuses</SelectItem>
             <SelectItem value="todo">To Do</SelectItem>
             <SelectItem value="in_progress">In Progress</SelectItem>
             <SelectItem value="done">Done</SelectItem>
@@ -98,7 +98,7 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ currentFilters, onFilt
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">None</SelectItem>
+            <SelectItem value="none">None</SelectItem>
             <SelectItem value="due_date">Due Date</SelectItem>
             <SelectItem value="priority">Priority</SelectItem>
             <SelectItem value="title">Title</SelectItem>

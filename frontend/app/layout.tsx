@@ -1,5 +1,6 @@
 import AuthProvider from '@/providers/AuthProvider';
 import { ToastProvider } from '@/providers/ToastProvider'; // Import ToastProvider
+import ReactQueryProvider from '@/providers/ReactQueryProvider'; // Import ReactQueryProvider
 import type { Metadata } from 'next';
 import './globals.css';
 
@@ -16,11 +17,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AuthProvider>
-          <ToastProvider> {/* Wrap children with ToastProvider */}
-            {children}
-          </ToastProvider>
-        </AuthProvider>
+        <ReactQueryProvider>
+          <AuthProvider>
+            <ToastProvider> {/* Wrap children with ToastProvider */}
+              {children}
+            </ToastProvider>
+          </AuthProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );

@@ -1,33 +1,44 @@
-"use client"
+"use client";
 
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
-import { Button } from './ui/Button'; // Assuming shadcn-ui button
-import { Input } from './ui/Input';   // Assuming shadcn-ui input
-import { Label } from './ui/label';   // Assuming shadcn-ui label
+import { Button } from "./ui/Button";
+import { Input } from "./ui/Input";
+import { Label } from "./ui/label";
 
-// Define the Zod schema for the task form
-const TaskFormSchema = z.object({
+/* =========================
+   ZOD SCHEMA
+========================= */
+export const TaskFormSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
   description: z.string().optional(),
   priority: z.preprocess(
     (val) => Number(val),
-    z.number().min(1).max(5).optional(), // Assuming priority is between 1-5
+    z.number().min(1).max(5).optional()
   ),
-  due_date: z.string().optional(), // Make due_date validation less strict for now
+  due_date: z.string().optional(),
 });
 
-type TaskFormValues = z.infer<typeof TaskFormSchema>;
+export type TaskFormValues = z.infer<typeof TaskFormSchema>;
 
+/* =========================
+   PROPS
+========================= */
 interface TaskFormProps {
   onSubmit: (values: TaskFormValues) => void;
   defaultValues?: Partial<TaskFormValues>;
 }
 
-export function TaskForm({ onSubmit, defaultValues }: TaskFormProps) {
+/* =========================
+   COMPONENT
+========================= */
+export function TaskForm({
+  onSubmit,
+  defaultValues,
+}: TaskFormProps) {
   const {
     register,
     handleSubmit,
@@ -38,55 +49,58 @@ export function TaskForm({ onSubmit, defaultValues }: TaskFormProps) {
   });
 
   return (
-    <form onSubmit={handleSubmit((data) => { console.log('Form submitted with data:', data); onSubmit(data); })} className="space-y-4" role="form">
-      <div>
-        <Label htmlFor="title">Title</Label>
-        <Input 
-          id="title" 
-          {...register("title")} 
-          aria-required="true"
-          aria-invalid={errors.title ? "true" : "false"}
-          aria-describedby="title-error"
-        />
-        {errors.title && <p id="title-error" className="text-red-500 text-sm">{errors.title.message}</p>}
-      </div>
+    <div className="relative z-50 w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-xl font-semibold">Create New Task</h2>
+        </div>
 
-      <div>
-        <Label htmlFor="description">Description</Label>
-        <Input 
-          id="description" 
-          {...register("description")} 
-          aria-invalid={errors.description ? "true" : "false"}
-          aria-describedby="description-error"
-        />
-        {errors.description && <p id="description-error" className="text-red-500 text-sm">{errors.description.message}</p>}
-      </div>
+        <form
+          onSubmit={handleSubmit((data) => {
+            console.log("Form submitted with data:", data);
+            onSubmit(data);
+          })}
+          className="space-y-4"
+        >
+          <div>
+            <Label htmlFor="title">Title</Label>
+            <Input id="title" {...register("title")} />
+            {errors.title && (
+              <p className="text-sm text-red-500">
+                {errors.title.message}
+              </p>
+            )}
+          </div>
 
-      <div>
-        <Label htmlFor="priority">Priority (1-5)</Label>
-        <Input 
-          id="priority" 
-          type="number" 
-          {...register("priority")} 
-          aria-invalid={errors.priority ? "true" : "false"}
-          aria-describedby="priority-error"
-        />
-        {errors.priority && <p id="priority-error" className="text-red-500 text-sm">{errors.priority.message}</p>}
-      </div>
+          <div>
+            <Label htmlFor="description">Description</Label>
+            <Input id="description" {...register("description")} />
+          </div>
 
-      <div>
-        <Label htmlFor="due_date">Due Date</Label>
-        <Input 
-          id="due_date" 
-          type="datetime-local" 
-          {...register("due_date")} 
-          aria-invalid={errors.due_date ? "true" : "false"}
-          aria-describedby="due_date-error"
-        />
-        {errors.due_date && <p id="due_date-error" className="text-red-500 text-sm">{errors.due_date.message}</p>}
-      </div>
+          <div>
+            <Label htmlFor="priority">Priority (1–5)</Label>
+            <Input
+              id="priority"
+              type="number"
+              {...register("priority")}
+            />
+          </div>
 
-      <Button type="submit">Submit</Button>
-    </form>
-  );
-}
+          <div>
+            <Label htmlFor="due_date">Due Date</Label>
+            <Input
+              id="due_date"
+              type="datetime-local"
+              {...register("due_date")}
+            />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-4">
+            <Button type="button" variant="secondary">
+              Cancel
+            </Button>
+            <Button type="submit">Create Task</Button>
+          </div>
+        </form>
+      </div>
+    );
+  }

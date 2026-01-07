@@ -2,47 +2,40 @@
 
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState, Suspense } from "react"; // Import Suspense
-import dynamic from "next/dynamic"; // Import dynamic
+import { useState, Suspense } from "react";
+import dynamic from "next/dynamic";
 
-import { Button } from "@/components/ui/Button";
 // Dynamically import components
 const DynamicModal = dynamic(() => import("@/components/ui/Modal").then((mod) => mod.Modal), {
-  loading: () => <p>Loading modal...</p>,
+  loading: () => <p className="hidden">Loading modal...</p>,
   ssr: false,
 });
 const DynamicConfirmationModal = dynamic(() => import("@/components/ui/ConfirmationModal").then((mod) => mod.ConfirmationModal), {
-  loading: () => <p>Loading confirmation...</p>,
+  loading: () => <p className="hidden">Loading confirmation...</p>,
   ssr: false,
 });
 const DynamicTaskForm = dynamic(() => import("@/components/TaskForm").then((mod) => mod.TaskForm), {
-  loading: () => <p>Loading form...</p>,
-  ssr: false,
-});
-const DynamicTaskKanban = dynamic(() => import("@/components/TaskKanban").then((mod) => mod.TaskKanban), {
-  loading: () => <p>Loading tasks...</p>,
-  ssr: false,
-});
-const DynamicEmptyState = dynamic(() => import("@/components/EmptyState").then((mod) => mod.EmptyState), {
-  loading: () => <p>Loading empty state...</p>,
+  loading: () => <p className="hidden">Loading form...</p>,
   ssr: false,
 });
 
+import { Button } from "@/components/ui/Button";
+import { TaskRead } from "@/lib/api";
+
 import { useCreateTask, useTasks, useUpdateTask, useDeleteTask } from "@/hooks/useTasks";
-import { TaskRead } from "@/lib/api"; // Import TaskRead from api.ts
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingTask, setEditingTask] = useState<TaskRead | null>(null); // State for task being edited
-  const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false); // State for confirmation modal
-  const [taskIdToDelete, setTaskIdToDelete] = useState<number | null>(null); // State for task ID to delete
+  const [editingTask, setEditingTask] = useState<TaskRead | null>(null);
+  const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
+  const [taskIdToDelete, setTaskIdToDelete] = useState<number | null>(null);
 
   const { data: tasks, isLoading, isError } = useTasks();
   const createTaskMutation = useCreateTask();
   const updateTaskMutation = useUpdateTask();
-  const deleteTaskMutation = useDeleteTask(); // Initialize delete mutation
+  const deleteTaskMutation = useDeleteTask();
 
   const handleCreateTask = async (values: any) => {
     await createTaskMutation.mutateAsync(values);
@@ -53,7 +46,7 @@ export default function DashboardPage() {
     if (editingTask) {
       await updateTaskMutation.mutateAsync({ id: editingTask.id, ...values });
       setIsModalOpen(false);
-      setEditingTask(null); // Clear editing task after update
+      setEditingTask(null);
     }
   };
 
@@ -77,7 +70,7 @@ export default function DashboardPage() {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setEditingTask(null); // Clear editing task when modal closes
+    setEditingTask(null);
   };
 
   const closeConfirmDeleteModal = () => {
@@ -103,57 +96,114 @@ export default function DashboardPage() {
       <header className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Welcome, {session.user?.name || session.user?.email}!</h1>
         <div className="flex space-x-4">
-          <Button onClick={() => { setEditingTask(null); setIsModalOpen(true); }} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm">
+          <Button
+            onClick={() => {
+              console.log("Create New Task button clicked");
+              setEditingTask(null);
+              setIsModalOpen(true);
+              console.log("Modal state after update:", { isModalOpen: true, editingTask: null });
+            }}
+            variant="primary"
+          >
             Create New Task
           </Button>
-          <Button onClick={() => signOut({ callbackUrl: "/login" })} className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md shadow-sm">
+          <Button onClick={() => signOut({ callbackUrl: "/login" })} className="bg-red-600 hover:bg-red-700 text-white">
             Log Out
           </Button>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto">
-        {/* Placeholder for TaskFilters component */}
-        <section className="bg-white rounded-lg shadow-md p-4 mb-6">
-          <h2 className="text-xl font-semibold mb-2 text-gray-800">Task Filters (Placeholder)</h2>
-          <div className="h-16 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center text-gray-500">
-            Filters will go here (T043)
-          </div>
-        </section>
-
-        {/* Task Display */}
+        {/* Placeholder for new CRUD UI */}
         <section className="bg-white rounded-lg shadow-md p-4">
-          <h2 className="text-xl font-semibold mb-2 text-gray-800">Your Tasks</h2>
+          <h2 className="text-xl font-semibold mb-4 text-gray-800">Task Management</h2>
           {isLoading ? (
             <div className="flex justify-center items-center min-h-96">
               <p className="text-lg text-gray-700">Loading tasks...</p>
             </div>
           ) : isError ? (
-            <div className="flex justify-center items-center min-h-96">
-              <p className="text-lg text-red-500">Error loading tasks.</p>
+            <div className="flex flex-col items-center justify-center min-h-96">
+              <p className="text-lg text-red-500 mb-4">Error loading tasks.</p>
+              <Button
+                onClick={() => window.location.reload()}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                Retry
+              </Button>
             </div>
-          ) : tasks && tasks.length > 0 ? (
-            <Suspense fallback={<p>Loading Kanban...</p>}>
-              <DynamicTaskKanban tasks={tasks} onEditTask={openEditModal} onDeleteTask={openConfirmDeleteModal} /> {/* Pass onDeleteTask */}
-            </Suspense>
           ) : (
-            <Suspense fallback={<p>Loading empty state...</p>}>
-              <DynamicEmptyState />
-            </Suspense>
+            tasks && tasks.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Title
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Description
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Priority
+                      </th>
+                      <th scope="col" className="relative px-6 py-3">
+                        <span className="sr-only">Actions</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {tasks.map((task) => (
+                      <tr key={task.id}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">{task.title}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-500">{task.description || 'N/A'}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            {task.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {task.priority}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <Button onClick={() => openEditModal(task)} variant="secondary" className="mr-2">
+                            Edit
+                          </Button>
+                          <Button onClick={() => openConfirmDeleteModal(task.id)} variant="destructive">
+                            Delete
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center min-h-96">
+                <p className="text-lg text-gray-700 mb-4">No tasks found. Create one to get started!</p>
+                <Button onClick={() => { setEditingTask(null); setIsModalOpen(true); }} variant="primary">
+                  Create New Task
+                </Button>
+              </div>
+            )
           )}
         </section>
       </main>
 
-      <Suspense fallback={<p>Loading task modal...</p>}>
-        <DynamicModal isOpen={isModalOpen} onClose={closeModal} title={editingTask ? "Edit Task" : "Create New Task"}>
-          <DynamicTaskForm 
-            onSubmit={editingTask ? handleUpdateTask : handleCreateTask} 
-            defaultValues={editingTask || undefined} // Pass defaultValues for editing
-          />
-        </DynamicModal>
-      </Suspense>
+      <DynamicModal isOpen={isModalOpen} onClose={closeModal} title={editingTask ? "Edit Task" : "Create New Task"} className="z-[9999]">
+        <DynamicTaskForm
+          onSubmit={editingTask ? handleUpdateTask : handleCreateTask}
+          defaultValues={editingTask || undefined}
+        />
+      </DynamicModal>
 
-      <Suspense fallback={<p>Loading confirmation modal...</p>}>
+      <Suspense fallback={<div className="hidden"></div>}>
         <DynamicConfirmationModal
           isOpen={showConfirmDeleteModal}
           onCancel={closeConfirmDeleteModal}
