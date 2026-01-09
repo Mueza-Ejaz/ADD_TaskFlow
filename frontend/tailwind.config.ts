@@ -9,12 +9,21 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: '#7C3AED', // Deep Purple
-        secondary: '#06D6A0', // Cyan
-        background: '#0F172A', // Dark
-        surface: 'rgba(30, 41, 59, 0.7)', // Glassmorphism surface
-        text: {
-          DEFAULT: '#FFFFFF', // White with opacity variations will be handled by opacity utilities
+        primary: {
+          500: '#3b82f6',
+          600: '#8b5cf6',
+        },
+        secondary: {
+          50: '#f9fafb',
+          100: '#f3f4f6',
+          200: '#e5e7eb',
+          300: '#d1d5db',
+          400: '#9ca3af',
+          500: '#6b7280',
+          600: '#4b5563',
+          700: '#374151',
+          800: '#1f2937',
+          900: '#111827',
         },
         success: '#10b981',
         warning: '#f59e0b',
@@ -22,7 +31,6 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
-        mono: ['JetBrains Mono', 'monospace'],
       },
       fontSize: {
         xs: '12px',
@@ -51,30 +59,8 @@ const config: Config = {
         'gradient-primary': 'linear-gradient(to right, #3b82f6, #8b5cf6)',
         'gradient-background': 'linear-gradient(to bottom, #f8fafc, #f1f5f9)',
       },
-      // Adding backdrop-filter utility for glassmorphism
-      backdropFilter: { // Requires tailwindcss-filters plugin
-        'none': 'none',
-        'blur-sm': 'blur(4px)',
-        'blur': 'blur(8px)',
-        'blur-md': 'blur(12px)',
-        'blur-lg': 'blur(16px)',
-      },
-      animation: {
-        'gradient-shift': 'gradient-shift 15s ease infinite',
-        'float': 'float 6s ease-in-out infinite',
-      },
-      keyframes: {
-        'gradient-shift': {
-          '0%, 100%': { backgroundPosition: '0% 50%' },
-          '50%': { backgroundPosition: '100% 50%' },
-        },
-        'float': {
-          '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-20px)' },
-        },
-      },
     },
   },
-  plugins: [require('tailwindcss-filters')],
+  plugins: [],
 };
 export default config;

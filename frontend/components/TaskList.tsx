@@ -23,10 +23,9 @@ interface TaskListProps {
   status: string; // The status this column represents
   onEditTask: (task: TaskRead) => void;
   onDeleteTask: (taskId: number) => void; // Add onDeleteTask prop
-  activeId: string | number | null; // Added activeId prop
 }
 
-export const TaskList: React.FC<TaskListProps> = ({ id, title, tasks, status, onEditTask, onDeleteTask, activeId }) => {
+export const TaskList: React.FC<TaskListProps> = ({ id, title, tasks, status, onEditTask, onDeleteTask }) => {
   const { setNodeRef, isOver } = useDroppable({
     id: id,
   });
@@ -35,15 +34,15 @@ export const TaskList: React.FC<TaskListProps> = ({ id, title, tasks, status, on
     <div
       ref={setNodeRef}
       className={clsx(
-        "bg-surface backdrop-blur-md border border-opacity-20 border-white-500 shadow-lg p-4 rounded-lg w-80 flex-shrink-0", // Glassmorphism styles
-        isOver && "ring-2 ring-primary-dark ring-opacity-50" // A more subtle ring for drag-over effect
+        "bg-gray-200 p-4 rounded-lg shadow-md w-80 flex-shrink-0",
+        isOver && "bg-blue-100" // Visual indicator when dragging over
       )}
     >
-      <h3 className="text-lg font-semibold mb-4 border-b pb-2 text-text-DEFAULT">{title} ({tasks.length})</h3>
+      <h3 className="text-lg font-semibold mb-4 border-b pb-2">{title} ({tasks.length})</h3>
       <div className="space-y-3">
         <AnimatePresence>
           {tasks.filter(task => task.status === status).map((task) => (
-            <TaskCard key={task.id} {...task} onEditTask={onEditTask} onDeleteTask={onDeleteTask} isDragging={task.id === activeId} /> // Pass isDragging
+            <TaskCard key={task.id} {...task} onEditTask={onEditTask} onDeleteTask={onDeleteTask} />
           ))}
         </AnimatePresence>
       </div>

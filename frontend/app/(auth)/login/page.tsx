@@ -3,8 +3,8 @@
 import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Input } from "@/components/ui/Input";
-import AnimatedButton from "@/components/ui/AnimatedButton"; // Use AnimatedButton
+import { Button } from "@/components/ui/Button"; // Assuming Button component exists
+import { Input } from "@/components/ui/Input"; // Assuming Input component exists
 
 export default function LoginPage() {
   const { data: session, status } = useSession();
@@ -40,42 +40,40 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative z-10 flex w-full h-screen items-center justify-center p-4"> {/* Center content */}
-      <div className="w-full max-w-md rounded-lg bg-surface backdrop-blur-md border border-opacity-20 border-white-500 shadow-lg p-8 text-text-DEFAULT"> {/* Use glassmorphism classes */}
-          <h1 className="mb-6 text-center text-3xl font-bold">Log In</h1>
-          <form onSubmit={handleSignIn}>
-            {error && <p className="mb-4 text-center text-red-500">{error}</p>}
-            <div className="mb-4">
-              <Input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="bg-background/50 border-gray-700 text-text-DEFAULT placeholder-gray-400" // Apply dark theme input styles
-              />
-            </div>
-            <div className="mb-6">
-              <Input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="bg-background/50 border-gray-700 text-text-DEFAULT placeholder-gray-400" // Apply dark theme input styles
-              />
-            </div>
-            <AnimatedButton type="submit" className="w-full"> {/* Use AnimatedButton */}
-              Log In
-            </AnimatedButton>
-          </form>
-          <p className="mt-4 text-center text-sm text-text-DEFAULT text-opacity-80"> {/* Use text-text-DEFAULT */}
-            Don't have an account?{" "}
-            <a href="/signup" className="text-secondary hover:underline"> {/* Use secondary color */}
-              Sign Up
-            </a>
-          </p>
-        </div>
+    <div className="flex min-h-screen items-center justify-center bg-gray-100">
+      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
+        <h1 className="mb-6 text-center text-3xl font-bold">Log In</h1>
+        <form onSubmit={handleSignIn}>
+          {error && <p className="mb-4 text-center text-red-500">{error}</p>}
+          <div className="mb-4">
+            <Input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="mb-6">
+            <Input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <Button type="submit" className="w-full">
+            Log In
+          </Button>
+        </form>
+        <p className="mt-4 text-center text-sm text-gray-600">
+          Don't have an account?{" "}
+          <a href="/signup" className="text-blue-600 hover:underline">
+            Sign Up
+          </a>
+        </p>
       </div>
+    </div>
   );
 }

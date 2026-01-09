@@ -2,9 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Fallback for browsers that do not support backdrop-filter */
-.no-backdrop-filter .backdrop-blur-md {
-  background-color: rgba(30, 41, 59, 0.9); /* Slightly darker and less transparent fallback */
-  backdrop-filter: none; /* Ensure backdrop-filter is explicitly removed */
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
 }
 
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      transparent
+    )
+    rgb(var(--background-end-rgb));
+}

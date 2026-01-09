@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal } from './Modal'; // Assuming an existing Modal component
-import AnimatedButton from './AnimatedButton'; // Assuming an existing AnimatedButton component
+import { Button } from './Button'; // Assuming an existing Button component
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -28,20 +28,20 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       <div className="p-4">
         <p className="mb-4 text-gray-700">{message}</p>
         <div className="flex justify-end space-x-2">
-          <AnimatedButton
+          <Button
             variant="outline"
             onClick={onCancel}
             disabled={isConfirming}
           >
             {cancelText}
-          </AnimatedButton>
-          <AnimatedButton
+          </Button>
+          <Button
             onClick={onConfirm}
             disabled={isConfirming}
             className="bg-red-600 hover:bg-red-700 text-white"
           >
             {isConfirming ? 'Confirming...' : confirmText}
-          </AnimatedButton>
+          </Button>
         </div>
       </div>
     </Modal>

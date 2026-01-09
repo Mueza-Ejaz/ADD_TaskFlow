@@ -39,7 +39,6 @@ interface TaskKanbanProps {
 export const TaskKanban: React.FC<TaskKanbanProps> = ({ initialTasks, onEditTask, onDeleteTask }) => {
   const [tasks, setTasks] = useState<TaskRead[]>(initialTasks);
   const updateTaskMutation = useUpdateTask();
-  const [activeId, setActiveId] = useState<string | number | null>(null); // Added activeId state
 
   // Define the order and titles of your Kanban columns
   const kanbanColumns = [
@@ -66,13 +65,8 @@ export const TaskKanban: React.FC<TaskKanbanProps> = ({ initialTasks, onEditTask
     return undefined;
   };
 
-  const handleDragStart = (event: any) => {
-    setActiveId(event.active.id);
-  };
-
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
-    setActiveId(null); // Clear active ID after drag ends
 
     if (!over) return;
 
@@ -99,9 +93,7 @@ export const TaskKanban: React.FC<TaskKanbanProps> = ({ initialTasks, onEditTask
     <DndContext
       sensors={sensors}
       collisionDetection={closestCorners}
-      onDragStart={handleDragStart} // Added onDragStart
       onDragEnd={handleDragEnd}
-      onDragCancel={() => setActiveId(null)} // Added onDragCancel to clear activeId
     >
       <div className="flex space-x-4 overflow-x-auto p-4">
         {kanbanColumns.map(column => (
@@ -118,7 +110,6 @@ export const TaskKanban: React.FC<TaskKanbanProps> = ({ initialTasks, onEditTask
               tasks={tasks.filter(task => task.status === column.status)}
               onEditTask={onEditTask}
               onDeleteTask={onDeleteTask} // Pass onDeleteTask
-              activeId={activeId} // Pass activeId to TaskList
             />
           </SortableContext>
         ))}

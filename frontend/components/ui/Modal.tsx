@@ -43,7 +43,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, classNa
         >
           {/* Overlay */}
           <motion.div
-            className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-md" // Added backdrop-blur-md
+            className="fixed inset-0 bg-black bg-opacity-50"
             onClick={onClose}
           ></motion.div>
 
@@ -52,7 +52,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, classNa
             ref={modalContentRef} // Attach ref here
             tabIndex={-1} // Make it programmatically focusable
             className={clsx(
-              "relative flex flex-col w-full max-w-lg p-6 my-6 mx-auto bg-surface backdrop-blur-md border border-opacity-20 border-white-500 shadow-lg text-text-DEFAULT rounded-lg", // Updated glassmorphism classes
+              "relative flex flex-col w-full max-w-lg p-6 my-6 mx-auto bg-white rounded-lg shadow-lg dark:bg-gray-800",
               className
             )}
             initial={{ scale: 0.9, opacity: 0 }}
@@ -64,13 +64,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, classNa
           >
             {/* Header */}
             <div className="flex items-start justify-between pb-3 rounded-t">
-              {title && <h3 id="modal-title" className="text-xl font-semibold text-text-DEFAULT">{title}</h3>} {/* Updated text color */}
+              {title && <h3 id="modal-title" className="text-xl font-semibold text-gray-900 dark:text-white">{title}</h3>}
               <button
-                className="p-1 ml-auto bg-transparent border-0 text-text-DEFAULT float-right text-3xl leading-none font-semibold outline-none focus:outline-none" // Updated text color
+                className="p-1 ml-auto bg-transparent border-0 text-black dark:text-white float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
                 onClick={onClose}
-                aria-label="Close dialog"
+                aria-label="Close dialog" // Add aria-label for accessibility
               >
-                <span className="bg-transparent text-text-DEFAULT h-6 w-6 text-2xl block outline-none focus:outline-none"> {/* Updated text color */}
+                <span className="bg-transparent text-black dark:text-white h-6 w-6 text-2xl block outline-none focus:outline-none">
                   ×
                 </span>
               </button>
