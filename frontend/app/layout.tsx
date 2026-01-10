@@ -1,6 +1,7 @@
 import AuthProvider from '@/providers/AuthProvider';
-import { ToastProvider } from '@/providers/ToastProvider'; // Import ToastProvider
-import ReactQueryProvider from '@/providers/ReactQueryProvider'; // Import ReactQueryProvider
+import { ToastProvider } from '@/providers/ToastProvider';
+import ReactQueryProvider from '@/providers/ReactQueryProvider';
+import { PageTransition } from '@/components/ui/PageTransition'; // Import PageTransition
 import type { Metadata } from 'next';
 import './globals.css';
 
@@ -16,11 +17,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className="bg-black text-white antialiased">
         <ReactQueryProvider>
           <AuthProvider>
-            <ToastProvider> {/* Wrap children with ToastProvider */}
-              {children}
+            <ToastProvider>
+              <PageTransition>
+                 {children}
+              </PageTransition>
             </ToastProvider>
           </AuthProvider>
         </ReactQueryProvider>

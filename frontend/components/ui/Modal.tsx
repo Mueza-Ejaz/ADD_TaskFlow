@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
+import { X } from 'lucide-react';
 
 export interface ModalProps {
   isOpen: boolean;
@@ -17,14 +18,12 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, classNa
   useEffect(() => {
     if (isOpen) {
       previouslyFocusedElement.current = document.activeElement as HTMLElement;
-      // Use a timeout to ensure the modal is rendered before attempting to focus
       const timeoutId = setTimeout(() => {
         modalContentRef.current?.focus();
       }, 0);
 
       return () => {
         clearTimeout(timeoutId);
-        // Restore focus to the previously focused element when the modal closes
         if (previouslyFocusedElement.current) {
           previouslyFocusedElement.current.focus();
         }
@@ -43,41 +42,42 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, classNa
         >
           {/* Overlay */}
           <motion.div
-            className="fixed inset-0 bg-black bg-opacity-50"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
             onClick={onClose}
-          ></motion.div>
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          />
 
           {/* Modal Content */}
           <motion.div
-            ref={modalContentRef} // Attach ref here
-            tabIndex={-1} // Make it programmatically focusable
+            ref={modalContentRef}
+            tabIndex={-1}
             className={clsx(
-              "relative flex flex-col w-full max-w-lg p-6 my-6 mx-auto bg-white rounded-lg shadow-lg dark:bg-gray-800",
+              "relative flex flex-col w-full max-w-lg p-6 my-6 mx-auto rounded-2xl border border-white/10 bg-gray-900/90 backdrop-blur-xl shadow-2xl",
               className
             )}
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            role="dialog" // Add role dialog
-            aria-modal="true" // Indicate that it's a modal
-            aria-labelledby="modal-title" // Link to the title
+            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
           >
             {/* Header */}
-            <div className="flex items-start justify-between pb-3 rounded-t">
-              {title && <h3 id="modal-title" className="text-xl font-semibold text-gray-900 dark:text-white">{title}</h3>}
+            <div className="flex items-start justify-between pb-4 border-b border-white/10 mb-4">
+              {title && <h3 id="modal-title" className="text-xl font-bold text-white">{title}</h3>}
               <button
-                className="p-1 ml-auto bg-transparent border-0 text-black dark:text-white float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
+                className="p-1 ml-auto text-gray-400 hover:text-white transition-colors outline-none focus:outline-none"
                 onClick={onClose}
-                aria-label="Close dialog" // Add aria-label for accessibility
+                aria-label="Close dialog"
               >
-                <span className="bg-transparent text-black dark:text-white h-6 w-6 text-2xl block outline-none focus:outline-none">
-                  ×
-                </span>
+                <X className="h-5 w-5" />
               </button>
             </div>
 
             {/* Body */}
-            <div className="relative flex-auto">{children}</div>
+            <div className="relative flex-auto text-gray-300">{children}</div>
           </motion.div>
         </motion.div>
       )}

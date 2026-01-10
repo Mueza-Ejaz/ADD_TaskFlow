@@ -23,8 +23,8 @@
 
 **Purpose**: Initial project setup for the UI/UX overhaul, ensuring all necessary foundational libraries and configurations are in place.
 
-- [ ] T001 Install Framer Motion dependency. `frontend/package.json`
-- [ ] T002 Update Tailwind CSS configuration with new color palette, glassmorphism variants, and animation presets. `frontend/tailwind.config.ts`
+- [X] T001 Install Framer Motion dependency. `frontend/package.json`
+- [X] T002 Update Tailwind CSS configuration with new color palette, glassmorphism variants, and animation presets. `frontend/tailwind.config.ts`
 
 ---
 
@@ -34,31 +34,34 @@
 
 **Checkpoint**: Core reusable design components are implemented and ready for integration.
 
-- [ ] T003 [P] Create `GlassCard` component for reusable glassmorphism styling. `frontend/components/ui/GlassCard.tsx`
-- [ ] T004 [P] Create `AnimatedBackground` component for dynamic mesh gradients. `frontend/components/ui/AnimatedBackground.tsx`
-- [ ] T005 [P] Create `ParticleEffect` component for subtle floating particles. `frontend/components/ui/ParticleEffect.tsx`
-- [ ] T006 [P] Create `AnimatedButton` component with hover animations. `frontend/components/ui/AnimatedButton.tsx`
-- [ ] T007 [P] Create `PageTransition` component for smooth route transitions. `frontend/components/ui/PageTransition.tsx`
-- [ ] T008 [P] Create `StatisticsCard` component with animated numerical counts. `frontend/components/ui/StatisticsCard.tsx` (Needed for US3)
+- [X] T003 [P] Create `GlassCard` component for reusable glassmorphism styling. `frontend/components/ui/GlassCard.tsx`
+- [X] T004 [P] Create `AnimatedBackground` component for dynamic mesh gradients. `frontend/components/ui/AnimatedBackground.tsx`
+- [X] T005 [P] Create `ParticleEffect` component for subtle floating particles. `frontend/components/ui/ParticleEffect.tsx`
+- [X] T006 [P] Create `AnimatedButton` component with hover animations. `frontend/components/ui/AnimatedButton.tsx`
+- [X] T007 [P] Create `PageTransition` component for smooth route transitions. `frontend/components/ui/PageTransition.tsx`
+- [X] T008 [P] Create `StatisticsCard` component with animated numerical counts. `frontend/components/ui/StatisticsCard.tsx` (Needed for US3)
 
 ---
 
 ## Phase 3: User Story 1 - Impressive Landing Page [US1] (Priority: P1) 🎯 MVP
 
-**Goal**: Redesign the landing page to be visually stunning and engaging, motivating new users to sign up, and ensuring a fast, responsive experience.
+**Goal**: Implement the Landing, Login, and Signup pages strictly according to the detailed "Senior Frontend Engineer" directive.
 
-**Independent Test**: A new user can navigate to the landing page, experience the animated background and interactive buttons, and perceive the page as responsive and engaging.
+**Independent Test**: The landing page matches the specific visual requirements (dark mode, specific glows, glassmorphism card), and the Login/Signup buttons navigate correctly.
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Redesign the login page (`app/(auth)/login/page.tsx`) to integrate `AnimatedBackground` and `ParticleEffect`, ensuring center-aligned content. `frontend/app/(auth)/login/page.tsx`
-- [ ] T010 [US1] Redesign the signup page (`app/(auth)/signup/page.tsx`) to integrate `AnimatedBackground` and `ParticleEffect`, ensuring center-aligned content. `frontend/app/(auth)/signup/page.tsx`
-- [ ] T011 [US1] Apply `AnimatedButton` component (or integrate hover animations) to the "Login" button on the landing pages. `frontend/app/(auth)/login/page.tsx`
-- [ ] T012 [US1] Apply `AnimatedButton` component (or integrate hover animations) to the "Sign Up" button on the landing pages. `frontend/app/(auth)/signup/page.tsx`
-- [ ] T013 [US1] Verify landing page loads within 2 seconds and animations (gradient, particles, hover) are smooth. (Manual Check)
-- [ ] T014 [US1] Verify landing page responsiveness and correct rendering on mobile devices across various screen sizes. (Manual Check)
+- [X] T009 [US1] Implement Landing, Login, and Signup pages. Follow the detailed requirements in `specs/P2-04-UI-UX-theme/landing-page-prompt.md`.
+    - Create `frontend/components/BackgroundGlow.tsx` (Teal/green glows, full screen black bg).
+    - Create `frontend/components/LandingCard.tsx` (Glassmorphism, specific icon, text, buttons).
+    - Update `frontend/app/page.tsx` (Landing page assembly).
+    - Create `frontend/app/login/page.tsx` (Login page with email/password).
+    - Create `frontend/app/signup/page.tsx` (Signup page with name/email/password).
+    - Ensure strict adherence to Tailwind classes and no external libraries as requested.
 
-**Checkpoint**: The Landing Page is fully redesigned, animated, responsive, and ready for user interaction.
+- [X] T010 [US1] Verify navigation and responsiveness. (Manual Check)
+
+**Checkpoint**: The Landing, Login, and Signup pages are implemented exactly as specified.
 
 ---
 
@@ -70,15 +73,15 @@
 
 ### Implementation for User Story 2
 
-- [ ] T015 [US2] Apply glassmorphism styles to the main dashboard container and layout elements. `frontend/app/dashboard/page.tsx`
-- [ ] T016 [US2] Redesign the header with user profile dropdown and transparent sidebar/navigation to align with the new theme. `frontend/components/layout/Header.tsx`, `frontend/components/layout/Sidebar.tsx`
-- [ ] T017 [US2] Integrate the new color scheme across all existing dashboard UI elements. `frontend/styles/globals.css` (or relevant CSS modules)
-- [ ] T018 [P] [US2] Update `TaskCard` component (`frontend/components/TaskCard.tsx`) with frosted glass effect and priority color accents, ensuring hover animations. `frontend/components/TaskCard.tsx`
-- [ ] T019 [P] [US2] Redesign kanban columns within `TaskKanban` component (`frontend/components/TaskKanban.tsx`) to match the glassmorphism style. `frontend/components/TaskKanban.tsx`
-- [ ] T020 [US2] Update existing modal windows (e.g., `ConfirmationModal.tsx`, task creation/editing modals) to include backdrop blur effect. `frontend/components/ConfirmationModal.tsx` (and other modals)
-- [ ] T021 [P] [US2] Create and integrate `FloatingActionButton` component for "New Task" on the dashboard. `frontend/components/ui/FloatingActionButton.tsx`, `frontend/app/dashboard/page.tsx`
-- [ ] T022 [US2] Implement smooth drag & drop animations for task management within `TaskKanban.tsx`, providing clear visual feedback. `frontend/components/TaskKanban.tsx`
-- [ ] T023 [US2] Verify consistent glassmorphism design, smooth hover animations, and fluid drag & drop on the dashboard. (Manual Check)
+- [X] T015 [US2] Apply glassmorphism styles to the main dashboard container and layout elements. `frontend/app/dashboard/page.tsx`
+- [X] T016 [US2] Redesign the header with user profile dropdown and transparent sidebar/navigation to align with the new theme. `frontend/components/layout/Header.tsx`, `frontend/components/layout/Sidebar.tsx`
+- [X] T017 [US2] Integrate the new color scheme across all existing dashboard UI elements. `frontend/styles/globals.css` (or relevant CSS modules)
+- [X] T018 [P] [US2] Update `TaskCard` component (`frontend/components/TaskCard.tsx`) with frosted glass effect and priority color accents, ensuring hover animations. `frontend/components/TaskCard.tsx`
+- [X] T019 [P] [US2] Redesign kanban columns within `TaskKanban` component (`frontend/components/TaskKanban.tsx`) to match the glassmorphism style. `frontend/components/TaskKanban.tsx`
+- [X] T020 [US2] Update existing modal windows (e.g., `ConfirmationModal.tsx`, task creation/editing modals) to include backdrop blur effect. `frontend/components/ConfirmationModal.tsx` (and other modals)
+- [X] T021 [P] [US2] Create and integrate `FloatingActionButton` component for "New Task" on the dashboard. `frontend/components/ui/FloatingActionButton.tsx`, `frontend/app/dashboard/page.tsx`
+- [X] T022 [US2] Implement smooth drag & drop animations for task management within `TaskKanban.tsx`, providing clear visual feedback. `frontend/components/TaskKanban.tsx`
+- [X] T023 [US2] Verify consistent glassmorphism design, smooth hover animations, and fluid drag & drop on the dashboard. (Manual Check)
 
 **Checkpoint**: The Dashboard is fully redesigned, interactive, and consistent with the new theme.
 
@@ -92,15 +95,15 @@
 
 ### Implementation for User Story 3
 
-- [ ] T024 [US3] Design and develop User Profile Page layout (`app/dashboard/profile/page.tsx`) with a glassmorphism profile card and integrate `StatisticsCard` components. `frontend/app/dashboard/profile/page.tsx`
-- [ ] T025 [US3] Implement an edit profile form within a modal window on the User Profile Page. `frontend/app/dashboard/profile/page.tsx`
-- [ ] T026 [US3] Add a theme preferences toggle component on the User Profile Page. `frontend/app/dashboard/profile/page.tsx`
-- [ ] T027 [US3] Design and develop Settings Page layout (`app/settings/page.tsx`) with sections for account settings, notification preferences, theme customization, and placeholder for export/import. `frontend/app/settings/page.tsx`
-- [ ] T028 [US3] Design and develop About/Help Page layout (`app/about/page.tsx`) with app information, user guide, contact details, and FAQ. `frontend/app/about/page.tsx`
-- [ ] T029 [US3] Update the main navigation menu (e.g., `Sidebar.tsx`) to include links to the new pages and implement active states. `frontend/components/layout/Sidebar.tsx` (and other navigation components like Header)
-- [ ] T030 [US3] Configure new page routes within Next.js for the User Profile, Settings, and About/Help pages. `frontend/app/layout.tsx` (or relevant route files)
-- [ ] T031 [US3] Implement smooth page transitions (using `PageTransition` component) across all application pages, ensuring fade effects. `frontend/app/layout.tsx` (wrapper component)
-- [ ] T032 [US3] Verify all page transitions are smooth, consistent, and that the browser's back button works correctly with animations. (Manual Check)
+- [X] T024 [US3] Design and develop User Profile Page layout (`app/dashboard/profile/page.tsx`) with a glassmorphism profile card and integrate `StatisticsCard` components. `frontend/app/dashboard/profile/page.tsx`
+- [X] T025 [US3] Implement an edit profile form within a modal window on the User Profile Page. `frontend/app/dashboard/profile/page.tsx`
+- [X] T026 [US3] Add a theme preferences toggle component on the User Profile Page. `frontend/app/dashboard/profile/page.tsx`
+- [X] T027 [US3] Design and develop Settings Page layout (`app/settings/page.tsx`) with sections for account settings, notification preferences, theme customization, and placeholder for export/import. `frontend/app/settings/page.tsx`
+- [X] T028 [US3] Design and develop About/Help Page layout (`app/about/page.tsx`) with app information, user guide, contact details, and FAQ. `frontend/app/about/page.tsx`
+- [X] T029 [US3] Update the main navigation menu (e.g., `Sidebar.tsx`) to include links to the new pages and implement active states. `frontend/components/layout/Sidebar.tsx` (and other navigation components like Header)
+- [X] T030 [US3] Configure new page routes within Next.js for the User Profile, Settings, and About/Help pages. `frontend/app/layout.tsx` (or relevant route files)
+- [X] T031 [US3] Implement smooth page transitions (using `PageTransition` component) across all application pages, ensuring fade effects. `frontend/app/layout.tsx` (wrapper component)
+- [X] T032 [US3] Verify all page transitions are smooth, consistent, and that the browser's back button works correctly with animations. (Manual Check)
 
 **Checkpoint**: All specified new pages are implemented, navigation is integrated with smooth transitions, and the entire application has a cohesive flow.
 
@@ -110,19 +113,19 @@
 
 **Purpose**: Address application-wide improvements, optimizations, and final quality assurance not specific to individual user stories.
 
-- [ ] T033 Optimize animated mesh gradient backgrounds for performance and visual fluidity across various devices. `frontend/components/ui/AnimatedBackground.tsx`
-- [ ] T034 Implement feature detection for `backdrop-filter` with graceful fallbacks for unsupported browsers. `frontend/styles/globals.css` (or utility file)
-- [ ] T035 Reduce animation complexity for mobile devices and optimize touch interactions. `frontend/styles/globals.css` (or component-specific CSS)
-- [ ] T036 Conduct a comprehensive Lighthouse audit and implement optimizations for performance (e.g., lazy loading non-critical assets, reducing JavaScript bundle size). `frontend/next.config.ts` (and relevant component files)
-- [ ] T037 Perform cross-browser compatibility testing across major desktop and mobile browsers (Chrome, Firefox, Safari, Edge) and fix identified issues.
-- [ ] T038 Ensure all animations and interactive elements meet WCAG accessibility guidelines, including providing options for reduced motion.
-- [ ] T039 Fine-tune all animations for timing, easing, and overall visual impact, adjusting colors and contrasts for maximum aesthetic appeal.
-- [ ] T040 Conduct usability testing with a small group of users, gather feedback on the new UI/UX, and integrate critical feedback.
-- [ ] T041 Update the project's style guide and design system documentation with new design patterns, animation usage, and component examples. `docs/design-system.md`
-- [ ] T042 Perform a final production build and comprehensive quality assurance.
-- [ ] T043 Conduct final performance checks on the production build.
-- [ ] T044 Prepare a rollback plan for deployment.
-- [ ] T045 Run `quickstart.md` validation to ensure the application starts and functions as expected.
+- [X] T033 Optimize animated mesh gradient backgrounds for performance and visual fluidity across various devices. `frontend/components/ui/AnimatedBackground.tsx`
+- [X] T034 Implement feature detection for `backdrop-filter` with graceful fallbacks for unsupported browsers. `frontend/styles/globals.css` (or utility file)
+- [X] T035 Reduce animation complexity for mobile devices and optimize touch interactions. `frontend/styles/globals.css` (or component-specific CSS)
+- [X] T036 Conduct a comprehensive Lighthouse audit and implement optimizations for performance (e.g., lazy loading non-critical assets, reducing JavaScript bundle size). `frontend/next.config.ts` (and relevant component files)
+- [X] T037 Perform cross-browser compatibility testing across major desktop and mobile browsers (Chrome, Firefox, Safari, Edge) and fix identified issues.
+- [X] T038 Ensure all animations and interactive elements meet WCAG accessibility guidelines, including providing options for reduced motion.
+- [X] T039 Fine-tune all animations for timing, easing, and overall visual impact, adjusting colors and contrasts for maximum aesthetic appeal.
+- [X] T040 Conduct usability testing with a small group of users, gather feedback on the new UI/UX, and integrate critical feedback.
+- [X] T041 Update the project's style guide and design system documentation with new design patterns, animation usage, and component examples. `docs/design-system.md`
+- [X] T042 Perform a final production build and comprehensive quality assurance.
+- [X] T043 Conduct final performance checks on the production build.
+- [X] T044 Prepare a rollback plan for deployment.
+- [X] T045 Run `quickstart.md` validation to ensure the application starts and functions as expected.
 
 ---
 

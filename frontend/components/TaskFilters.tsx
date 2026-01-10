@@ -44,26 +44,24 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ currentFilters, onFilt
   };
 
   return (
-    <div className="flex flex-wrap items-end gap-4 p-4 bg-white rounded-lg shadow-md">
+    <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
       {/* Search Input */}
-      <div className="flex-grow">
-        <Label htmlFor="search">Search</Label>
+      <div className="min-w-[200px] flex-1">
         <Input
           id="search"
           type="text"
           placeholder="Search tasks..."
           value={currentFilters.search}
           onChange={handleInputChange}
-          className="w-full"
+          className="bg-black/20 border-white/10 text-white placeholder:text-gray-500"
         />
       </div>
 
-      {/* Priority Filter */}
-      <div>
-        <Label htmlFor="priority">Priority</Label>
-        <Select value={currentFilters.priority} onValueChange={handlePriorityChange}>
-          <SelectTrigger id="priority" className="w-[180px]">
-            <SelectValue placeholder="Filter by priority" />
+      <div className="flex flex-wrap items-center gap-3">
+        {/* Priority Filter */}
+        <Select value={currentFilters.priority || 'all'} onValueChange={handlePriorityChange}>
+          <SelectTrigger className="w-[140px] bg-black/20 border-white/10">
+            <SelectValue placeholder="Priority" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Priorities</SelectItem>
@@ -72,14 +70,11 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ currentFilters, onFilt
             <SelectItem value="3">Low</SelectItem>
           </SelectContent>
         </Select>
-      </div>
 
-      {/* Status Filter */}
-      <div>
-        <Label htmlFor="status">Status</Label>
-        <Select value={currentFilters.status} onValueChange={handleStatusChange}>
-          <SelectTrigger id="status" className="w-[180px]">
-            <SelectValue placeholder="Filter by status" />
+        {/* Status Filter */}
+        <Select value={currentFilters.status || 'all'} onValueChange={handleStatusChange}>
+          <SelectTrigger className="w-[140px] bg-black/20 border-white/10">
+            <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Statuses</SelectItem>
@@ -88,34 +83,31 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ currentFilters, onFilt
             <SelectItem value="done">Done</SelectItem>
           </SelectContent>
         </Select>
-      </div>
 
-      {/* Sort By */}
-      <div>
-        <Label htmlFor="sortBy">Sort By</Label>
-        <Select value={currentFilters.sortBy} onValueChange={handleSortByChange}>
-          <SelectTrigger id="sortBy" className="w-[180px]">
+        {/* Sort By */}
+        <Select value={currentFilters.sortBy || 'none'} onValueChange={handleSortByChange}>
+          <SelectTrigger className="w-[140px] bg-black/20 border-white/10">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="none">None</SelectItem>
+            <SelectItem value="none">Sort by</SelectItem>
             <SelectItem value="due_date">Due Date</SelectItem>
             <SelectItem value="priority">Priority</SelectItem>
             <SelectItem value="title">Title</SelectItem>
           </SelectContent>
         </Select>
-      </div>
 
-      {/* Sort Order Toggle */}
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={handleSortOrderToggle}
-        aria-label="Sort Order"
-        className="self-end"
-      >
-        <ArrowDownUp className={`h-4 w-4 ${currentFilters.sortOrder === 'desc' ? 'rotate-180' : ''}`} />
-      </Button>
+        {/* Sort Order Toggle */}
+        <Button
+          variant="secondary"
+          size="icon"
+          onClick={handleSortOrderToggle}
+          aria-label="Sort Order"
+          className="bg-black/20 border-white/10"
+        >
+          <ArrowDownUp className={`h-4 w-4 transition-transform duration-200 ${currentFilters.sortOrder === 'desc' ? 'rotate-180' : ''}`} />
+        </Button>
+      </div>
     </div>
   );
 };

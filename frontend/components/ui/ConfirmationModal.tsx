@@ -1,6 +1,6 @@
 import React from 'react';
-import { Modal } from './Modal'; // Assuming an existing Modal component
-import { Button } from './Button'; // Assuming an existing Button component
+import { Modal } from './Modal';
+import { Button } from './Button';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -10,7 +10,7 @@ interface ConfirmationModalProps {
   message: string;
   confirmText?: string;
   cancelText?: string;
-  isConfirming?: boolean; // To show loading state on confirm button
+  isConfirming?: boolean;
 }
 
 export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
@@ -25,22 +25,23 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 }) => {
   return (
     <Modal isOpen={isOpen} onClose={onCancel} title={title}>
-      <div className="p-4">
-        <p className="mb-4 text-gray-700">{message}</p>
-        <div className="flex justify-end space-x-2">
+      <div className="space-y-6">
+        <p className="text-gray-300">{message}</p>
+        <div className="flex justify-end space-x-3">
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={onCancel}
             disabled={isConfirming}
           >
             {cancelText}
           </Button>
           <Button
+            variant="destructive"
             onClick={onConfirm}
             disabled={isConfirming}
-            className="bg-red-600 hover:bg-red-700 text-white"
+            isLoading={isConfirming}
           >
-            {isConfirming ? 'Confirming...' : confirmText}
+            {confirmText}
           </Button>
         </div>
       </div>

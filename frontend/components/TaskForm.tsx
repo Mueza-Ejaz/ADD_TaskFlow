@@ -16,7 +16,7 @@ export const TaskFormSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
   description: z.string().optional(),
   priority: z.preprocess(
-    (val) => Number(val),
+    (val) => (val === "" ? undefined : Number(val)),
     z.number().min(1).max(5).optional()
   ),
   due_date: z.string().optional(),
@@ -29,7 +29,9 @@ export type TaskFormValues = z.infer<typeof TaskFormSchema>;
 ========================= */
 interface TaskFormProps {
   onSubmit: (values: TaskFormValues) => void;
+  onCancel?: () => void;
   defaultValues?: Partial<TaskFormValues>;
+  isSubmitting?: boolean;
 }
 
 /* =========================
@@ -37,7 +39,9 @@ interface TaskFormProps {
 ========================= */
 export function TaskForm({
   onSubmit,
+  onCancel,
   defaultValues,
+  isSubmitting = false,
 }: TaskFormProps) {
   const {
     register,
@@ -45,62 +49,87 @@ export function TaskForm({
     formState: { errors },
   } = useForm<TaskFormValues>({
     resolver: zodResolver(TaskFormSchema),
-    defaultValues,
+    defaultValues: {
+      title: defaultValues?.title || "",
+      description: defaultValues?.description || "",
+      priority: defaultValues?.priority,
+      due_date: defaultValues?.due_date ? new Date(defaultValues.due_date).toISOString().slice(0, 16) : "",
+    },
   });
 
   return (
-    <div className="relative z-50 w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Create New Task</h2>
+    <form
+      onSubmit={handleSubmit((data) => {
+        onSubmit(data);
+      })}
+      className="space-y-4"
+    >
+      <div>
+        <Label htmlFor="title" className="text-gray-300">Title</Label>
+        <Input 
+          id="title" 
+          {...register("title")} 
+          placeholder="Task title"
+          className="bg-black/20 border-white/10 text-white placeholder:text-gray-500"
+        />
+        {errors.title && (
+          <p className="mt-1 text-sm text-red-400">
+            {errors.title.message}
+          </p>
+        )}
+      </div>
+
+      <div>
+        <Label htmlFor="description" className="text-gray-300">Description</Label>
+        <Input 
+          id="description" 
+          {...register("description")} 
+          placeholder="Task description (optional)"
+          className="bg-black/20 border-white/10 text-white placeholder:text-gray-500"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="priority" className="text-gray-300">Priority (1–5)</Label>
+          <Input
+            id="priority"
+            type="number"
+            min="1"
+            max="5"
+            {...register("priority")}
+            placeholder="3"
+            className="bg-black/20 border-white/10 text-white placeholder:text-gray-500"
+          />
+          {errors.priority && (
+            <p className="mt-1 text-sm text-red-400">
+              {errors.priority.message}
+            </p>
+          )}
         </div>
 
-        <form
-          onSubmit={handleSubmit((data) => {
-            console.log("Form submitted with data:", data);
-            onSubmit(data);
-          })}
-          className="space-y-4"
-        >
-          <div>
-            <Label htmlFor="title">Title</Label>
-            <Input id="title" {...register("title")} />
-            {errors.title && (
-              <p className="text-sm text-red-500">
-                {errors.title.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor="description">Description</Label>
-            <Input id="description" {...register("description")} />
-          </div>
-
-          <div>
-            <Label htmlFor="priority">Priority (1–5)</Label>
-            <Input
-              id="priority"
-              type="number"
-              {...register("priority")}
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="due_date">Due Date</Label>
-            <Input
-              id="due_date"
-              type="datetime-local"
-              {...register("due_date")}
-            />
-          </div>
-
-          <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="secondary">
-              Cancel
-            </Button>
-            <Button type="submit">Create Task</Button>
-          </div>
-        </form>
+        <div>
+          <Label htmlFor="due_date" className="text-gray-300">Due Date</Label>
+          <Input
+            id="due_date"
+            type="datetime-local"
+            {...register("due_date")}
+            className="bg-black/20 border-white/10 text-white"
+          />
+        </div>
       </div>
-    );
-  }
+
+      <div className="flex justify-end gap-3 pt-6 border-t border-white/10">
+        {onCancel && (
+          <Button type="button" variant="secondary" onClick={onCancel} disabled={isSubmitting}>
+            Cancel
+          </Button>
+        )}
+        <Button type="submit" variant="primary" isLoading={isSubmitting}>
+          {defaultValues ? "Update Task" : "Create Task"}
+        </Button>
+      </div>
+    </form>
+  );
+}
+

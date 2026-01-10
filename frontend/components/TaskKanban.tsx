@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   DndContext,
   closestCorners,
@@ -7,16 +7,20 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  DragStartEvent,
+  DragOverlay,
+  defaultDropAnimationSideEffects,
+  DropAnimation,
 } from '@dnd-kit/core';
 import {
-  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
-  horizontalListSortingStrategy, // Use horizontal for columns if columns are sortable
-  verticalListSortingStrategy, // Use vertical for tasks within a column
+  verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { TaskList } from './TaskList';
-import { useUpdateTask } from '@/hooks/useTasks'; // Import useUpdateTask
+import { TaskCard } from './TaskCard';
+import { useUpdateTask } from '@/hooks/useTasks';
+import { createPortal } from 'react-dom';
 
 interface TaskRead {
   id: number;
@@ -33,14 +37,28 @@ interface TaskRead {
 interface TaskKanbanProps {
   initialTasks: TaskRead[];
   onEditTask: (task: TaskRead) => void;
-  onDeleteTask: (taskId: number) => void; // Add onDeleteTask prop
+  onDeleteTask: (taskId: number) => void;
 }
+
+const dropAnimation: DropAnimation = {
+  sideEffects: defaultDropAnimationSideEffects({
+    styles: {
+      active: {
+        opacity: '0.5',
+      },
+    },
+  }),
+};
 
 export const TaskKanban: React.FC<TaskKanbanProps> = ({ initialTasks, onEditTask, onDeleteTask }) => {
   const [tasks, setTasks] = useState<TaskRead[]>(initialTasks);
+  const [activeId, setActiveId] = useState<number | null>(null);
   const updateTaskMutation = useUpdateTask();
 
-  // Define the order and titles of your Kanban columns
+  useEffect(() => {
+    setTasks(initialTasks);
+  }, [initialTasks]);
+
   const kanbanColumns = [
     { status: "todo", title: "To Do" },
     { status: "in_progress", title: "In Progress" },
@@ -48,54 +66,65 @@ export const TaskKanban: React.FC<TaskKanbanProps> = ({ initialTasks, onEditTask
   ];
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
 
-  const findColumn = (id: string | number) => {
-    if (kanbanColumns.find(col => col.status === id)) {
-      return kanbanColumns.find(col => col.status === id);
-    }
-    const task = tasks.find(t => t.id === id);
-    if (task) {
-      return kanbanColumns.find(col => col.status === task.status);
-    }
-    return undefined;
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as number);
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
+    setActiveId(null);
 
     if (!over) return;
 
-    if (active.id !== over.id) {
-      const activeTask = tasks.find(t => t.id === active.id);
-      const overColumn = kanbanColumns.find(col => col.status === over.id);
-
-      if (activeTask && overColumn && activeTask.status !== overColumn.status) {
-        // Task dragged to a different column (status change)
+    const activeTask = tasks.find(t => t.id === active.id);
+    const overColumn = kanbanColumns.find(col => col.status === over.id);
+    
+    // If dropped over a column container (empty column case)
+    if (activeTask && overColumn && activeTask.status !== overColumn.status) {
         const updatedTask = { ...activeTask, status: overColumn.status };
         setTasks((prevTasks) =>
           prevTasks.map((task) => (task.id === updatedTask.id ? updatedTask : task))
         );
         await updateTaskMutation.mutateAsync(updatedTask);
-      } else {
-        // Handle reordering within a column if needed (not explicitly requested yet)
-        // For now, we'll just re-set tasks to trigger a re-render if necessary
-        setTasks((prevTasks) => [...prevTasks]);
-      }
+        return;
+    }
+
+    // If dropped over another task
+    if (active.id !== over.id) {
+       // Logic for reordering within column or moving to another column via task drop
+       // Check if over is a task
+       const overTask = tasks.find(t => t.id === over.id);
+       if (overTask && activeTask && activeTask.status !== overTask.status) {
+           // Moved to different column by dropping on a task
+           const updatedTask = { ...activeTask, status: overTask.status };
+           setTasks((prevTasks) =>
+            prevTasks.map((task) => (task.id === updatedTask.id ? updatedTask : task))
+          );
+          await updateTaskMutation.mutateAsync(updatedTask);
+       }
     }
   };
+
+  const activeTask = activeId ? tasks.find(t => t.id === activeId) : null;
 
   return (
     <DndContext
       sensors={sensors}
       collisionDetection={closestCorners}
+      onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex space-x-4 overflow-x-auto p-4">
+      <div className="flex h-full gap-6 overflow-x-auto pb-4">
         {kanbanColumns.map(column => (
           <SortableContext
             key={column.status}
@@ -103,17 +132,28 @@ export const TaskKanban: React.FC<TaskKanbanProps> = ({ initialTasks, onEditTask
             strategy={verticalListSortingStrategy}
           >
             <TaskList
-              id={column.status} // Pass ID for droppable context
-              key={column.status}
+              id={column.status}
               title={column.title}
               status={column.status}
-              tasks={tasks.filter(task => task.status === column.status)}
+              tasks={tasks}
               onEditTask={onEditTask}
-              onDeleteTask={onDeleteTask} // Pass onDeleteTask
+              onDeleteTask={onDeleteTask}
             />
           </SortableContext>
         ))}
       </div>
+      {createPortal(
+        <DragOverlay dropAnimation={dropAnimation}>
+          {activeTask ? (
+             <TaskCard
+               {...activeTask}
+               onEditTask={onEditTask}
+               onDeleteTask={onDeleteTask}
+             />
+          ) : null}
+        </DragOverlay>,
+        document.body
+      )}
     </DndContext>
   );
 };
