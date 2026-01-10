@@ -1,5 +1,5 @@
 import React from 'react';
-import clsx from 'clsx';
+import { cn } from '@/lib/utils';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -9,30 +9,35 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, label, error, ...props }, ref) => {
     return (
-      <div className="space-y-1">
+      <div className="w-full space-y-1">
         {label && (
-          <label htmlFor={props.id} className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+          <label htmlFor={props.id} className="block text-sm font-semibold text-white/90">
             {label}
           </label>
         )}
         <input
           type={type}
-          className={clsx(
-            'flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50',
-            'dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-500 dark:focus:ring-blue-500',
-            { 'border-red-500 focus:ring-red-500': error },
+          className={cn(
+            'flex h-11 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2 text-[15px] text-white transition-all duration-200',
+            'placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#00FFD1]/20 focus:border-[#00FFD1]/50',
+            'disabled:cursor-not-allowed disabled:opacity-50 hover:border-white/20',
+            error && 'border-red-500 focus:ring-red-500/20 focus:border-red-500',
             className
           )}
           ref={ref}
           {...props}
         />
-        {error && (
-          <p className="text-sm text-red-500">{error}</p>
-        )}
+        {errors_display(error)}
       </div>
     );
   }
 );
+
+function errors_display(error?: string) {
+  if (!error) return null;
+  return <p className="text-xs font-medium text-red-400 mt-1">{error}</p>;
+}
+
 Input.displayName = 'Input';
 
 export { Input };

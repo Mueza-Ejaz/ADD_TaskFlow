@@ -48,11 +48,15 @@ export const useCreateTask = () => {
           user_id: parseInt(session?.user?.id as string) || 0, // Placeholder user ID
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-        };
+          completed: false,
+        } as TaskRead;
         return old ? [...old, optimisticTask] : [optimisticTask];
       });
 
       return { previousTasks };
+    },
+    onSuccess: () => {
+      showToast('Task created successfully', 'success');
     },
     onError: (err, newTodo, context) => {
       if (context?.previousTasks) {
@@ -87,6 +91,9 @@ export const useUpdateTask = () => {
 
       return { previousTasks };
     },
+    onSuccess: () => {
+      showToast('Task updated successfully', 'success');
+    },
     onError: (err, updatedTask, context) => {
       if (context?.previousTasks) {
         queryClient.setQueryData<TaskRead[]>(['tasks'], context.previousTasks);
@@ -120,6 +127,9 @@ export const useToggleTaskStatus = () => {
 
       return { previousTasks };
     },
+    onSuccess: () => {
+      showToast('Status updated', 'success');
+    },
     onError: (err, newStatus, context) => {
       if (context?.previousTasks) {
         queryClient.setQueryData<TaskRead[]>(['tasks'], context.previousTasks);
@@ -152,6 +162,9 @@ export const useDeleteTask = () => {
       });
 
       return { previousTasks };
+    },
+    onSuccess: () => {
+      showToast('Task deleted successfully', 'success');
     },
     onError: (err, taskId, context) => {
       if (context?.previousTasks) {

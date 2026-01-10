@@ -138,7 +138,7 @@ export default function DashboardPage() {
         />
       </div>
 
-      <div className="h-[calc(100vh-20rem)]">
+      <div className="h-[calc(100vh-23rem)]">
         {isLoading ? (
           <div className="flex justify-center items-center h-full">
             <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#00FFD1] border-t-transparent shadow-[0_0_15px_rgba(0,255,209,0.2)]" />

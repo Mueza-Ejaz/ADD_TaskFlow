@@ -1,104 +1,117 @@
-You are a senior frontend UI/UX engineer.
+aik issue a raha hy jab me creat task k button par clcik karti hoo sab details enter kar laiti hoo then creat par click karti hoo to usk k baad koi message show nahi hota k task create hogya successfully ya nahi or dashboard par todo, progress etc in divs waly portion par nazar bhi nahi a rhaa hy koi task or na hi me task ko read kar sakti hoo or na hi edit.halank backend run kara howa hy saaat e us me to 200 ok a raha hy lakin Ui me show nahi ho raha hy mujhy lagta hy 
+iski ui hi nahi banai hui to ab ap iski ui banaii lakin yaad rahy k existing ui kharaab na hoo is ui ko add karnyy ki waja sy to apny smartly workig karni hy as a professional designer ki tarha.
+
+You are a senior Next.js 14 frontend engineer.
+
+CONTEXT:
+This project uses Next.js 14 (App Router) and Tailwind CSS.
+Backend APIs already exist and return 200 OK on task creation.
+However, frontend UI for post-creation feedback and task interaction is missing.
 
 TASK:
-Improve visibility, hierarchy, and empty-state presentation of the existing dashboard UI WITHOUT changing layout structure, logic, or theme.
+Implement missing frontend UI and state updates so that users can:
+- See success/error feedback after creating a task
+- Immediately see created tasks on the dashboard
+- Read/view task details
+- Edit/update existing tasks
 
-ABSOLUTE RULES:
-- ❌ Do NOT change routing, components, or data logic
-- ❌ Do NOT add new sections or remove existing ones
-- ❌ Do NOT change background animation or color palette
-- ❌ Do NOT break responsiveness
-- ✅ ONLY adjust CSS (spacing, shadows, contrast, font weight, empty states)
+STRICT RULES:
+- ❌ Do NOT modify backend APIs
+- ❌ Do NOT change database schema
+- ❌ Do NOT break existing dashboard layout or theme
+- ❌ Do NOT remove existing components
+- ✅ ONLY add missing UI, state handling, and interactions
+- ✅ Use Tailwind CSS only
+- ✅ Use existing API responses
 
-SPECIFIC CHANGES REQUIRED:
-
-────────────────────────
-1️⃣ SIDEBAR VISIBILITY & DEPTH
-────────────────────────
-Problem:
-- Sidebar blends too much with main page
-- Hard to distinguish sidebar from content
-
-Fix:
-- Add clear elevation to sidebar:
-  - box-shadow: 4px 0 18px rgba(0,0,0,0.6)
-- Slight background contrast increase (same color family)
-- Keep width unchanged
-- Add subtle border on right for clarity
-
-Sidebar items:
-- Increase font-weight slightly (500–600)
-- Improve hover contrast
-- Active item should feel clearly selected
+REQUIRED FEATURES TO IMPLEMENT:
 
 ────────────────────────
-2️⃣ LOGOUT BUTTON (Bottom Left)
+1️⃣ CREATE TASK FEEDBACK UI (CRITICAL)
 ────────────────────────
-Problem:
-- Logout text is too dim and not noticeable
-
-Fix:
-- Increase opacity and font-weight
-- Add icon + text alignment consistency
-- Default color:
-  - rgba(255,255,255,0.75)
-- Hover:
-  - Soft red accent
-  - Background highlight
-- Add small divider above logout to separate it from menu
+- After clicking "Create Task":
+  - Show a success message (toast or inline alert)
+  - Show error message if API fails
+- Success message text:
+  - "Task created successfully"
+- Close the Create Task modal on success
 
 ────────────────────────
-3️⃣ TOP NAVBAR – PROFILE VISIBILITY
+2️⃣ DASHBOARD TASK RENDERING
 ────────────────────────
-Problem:
-- Profile email & avatar look faint and blend into background
-
-Fix:
-- Increase text contrast and font-weight
-- Email font-size slightly smaller than name
-- Avatar:
-  - Add border or glow
-  - Make clickable area clearer
-- Add subtle hover effect to whole profile block
-- Do NOT change navbar height or alignment
+- Fetch tasks from existing API
+- Render tasks as cards inside:
+  - To Do
+  - In Progress
+  - Done
+- Map task status correctly to columns
+- Ensure tasks appear immediately after creation
+- Handle empty states gracefully
 
 ────────────────────────
-4️⃣ TASK COLUMNS (TO DO / IN PROGRESS / DONE)
+3️⃣ TASK CARD UI
 ────────────────────────
-Problems:
-- Columns are too tall on initial load
-- Empty state looks boring and broken
+Each task card must show:
+- Title
+- Short description (truncated)
+- Priority badge
+- Due date (if available)
 
-Fix:
-- Reduce min-height
-- Set max-height relative to viewport (e.g. 65–70vh)
-- Improve internal spacing
-
-EMPTY STATE DESIGN (IMPORTANT):
-- When no tasks exist:
-  - Show centered placeholder text:
-    - "No tasks yet"
-    - "Tasks in progress will appear here"
-  - Text opacity: 0.45
-  - Font-size smaller than headings
-  - Optional dashed border or subtle gradient
-- Make empty state look intentional, not broken
-- Do NOT add loud icons or illustrations
+Styling:
+- Clean, minimal SaaS look
+- Hover elevation
+- Clickable card
 
 ────────────────────────
-5️⃣ GENERAL POLISH
+4️⃣ READ / VIEW TASK UI
 ────────────────────────
-- Use consistent transitions:
-  - transition: all 0.2s ease
-- No sharp animations
-- Keep modern SaaS feel
-- Maintain dark theme identity
+- On clicking a task card:
+  - Open a modal or side panel
+- Show full task details:
+  - Title
+  - Description
+  - Priority
+  - Status
+  - Due date
+
+────────────────────────
+5️⃣ EDIT / UPDATE TASK UI
+────────────────────────
+- Add an "Edit" action inside task view
+- Allow updating:
+  - Title
+  - Description
+  - Priority
+  - Status
+  - Due date
+- On successful update:
+  - Show success message
+  - Refresh task list UI
+
+────────────────────────
+6️⃣ STATE & DATA REFRESH (IMPORTANT)
+────────────────────────
+- After create or update:
+  - Refresh dashboard data immediately
+- Use:
+  - router.refresh() (Next.js App Router)
+  - OR local state updates if applicable
+
+────────────────────────
+7️⃣ ERROR & EMPTY STATES
+────────────────────────
+- If no tasks exist:
+  - Show friendly empty state text
+- If API fails:
+  - Show clear error feedback
+- Do NOT leave blank or confusing UI
 
 OUTPUT REQUIREMENTS:
-- Output ONLY updated CSS or Tailwind utility classes
-- Use safe, scoped selectors
-- No explanations, no emojis, no extra text
+- Provide all necessary frontend code additions
+- Use clean, scoped components
+- Tailwind CSS only
+- No explanations, no emojis, no placeholder comments
 - Code must be production-ready
 
 GOAL:
-Dashboard should feel structured, readable, and alive from first load — even with zero data — while keeping the original design intact.
+The dashboard should feel fully functional and complete, allowing users to create, view, and manage tasks with clear feedback and smooth UX.

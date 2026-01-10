@@ -34,9 +34,9 @@ export const TaskList: React.FC<TaskListProps> = ({ id, title, tasks, status, on
 
   const getStatusColor = () => {
     switch (status) {
-      case 'todo': return 'bg-white/40';
-      case 'in_progress': return 'bg-[#00FFD1]';
-      case 'done': return 'bg-green-400';
+      case 'pending': return 'bg-white/40';
+      case 'in-progress': return 'bg-[#00FFD1]';
+      case 'completed': return 'bg-green-400';
       default: return 'bg-gray-400';
     }
   };
@@ -45,22 +45,22 @@ export const TaskList: React.FC<TaskListProps> = ({ id, title, tasks, status, on
     <div
       ref={setNodeRef}
       className={clsx(
-        "flex h-fit min-h-[150px] max-h-[70vh] w-80 flex-shrink-0 flex-col rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md transition-all duration-300 shadow-xl",
+        "flex h-full w-[350px] flex-shrink-0 flex-col rounded-3xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-xl transition-all duration-300 shadow-2xl",
         isOver && "bg-white/10 border-[#00FFD1]/30 ring-4 ring-[#00FFD1]/5 shadow-2xl shadow-[#00FFD1]/10 scale-[1.01]"
       )}
     >
-      <div className="mb-5 flex items-center justify-between px-1">
-        <div className="flex items-center gap-2">
-          <div className={clsx("h-2 w-2 rounded-full shadow-[0_0_8px_rgba(0,0,0,0.5)]", getStatusColor())} />
-          <h3 className="font-bold text-white tracking-wide uppercase text-[11px] opacity-70">{title}</h3>
+      <div className="mb-6 flex items-center justify-between px-2">
+        <div className="flex items-center gap-3">
+          <div className={clsx("h-3 w-3 rounded-full shadow-[0_0_12px_rgba(0,0,0,0.5)]", getStatusColor())} />
+          <h3 className="font-black text-white tracking-widest uppercase text-[13px] opacity-90">{title}</h3>
         </div>
-        <span className="flex h-5 min-w-[1.25rem] items-center justify-center rounded-lg bg-white/10 px-2 text-[10px] font-bold text-white/80 border border-white/10">
+        <span className="flex h-7 min-w-[1.75rem] items-center justify-center rounded-xl bg-white/10 px-2.5 text-[12px] font-black text-white border border-white/10 shadow-lg">
           {columnTasks.length}
         </span>
       </div>
       
       <div className="flex-1 overflow-y-auto px-1 -mx-1 custom-scrollbar">
-        <div className="space-y-4 min-h-[50px]">
+        <div className="space-y-5 min-h-full">
           <AnimatePresence mode="popLayout">
             {columnTasks.length > 0 ? (
               columnTasks.map((task) => (
@@ -72,9 +72,9 @@ export const TaskList: React.FC<TaskListProps> = ({ id, title, tasks, status, on
                 />
               ))
             ) : (
-              <div className="flex flex-col items-center justify-center py-10 px-4 border-2 border-dashed border-white/5 rounded-xl bg-white/[0.02]">
-                <p className="text-sm font-medium text-white/40 text-center">No tasks yet</p>
-                <p className="text-[11px] text-white/20 text-center mt-1">Tasks in progress will appear here</p>
+              <div className="flex flex-col items-center justify-center py-20 px-4 border-2 border-dashed border-white/5 rounded-[2rem] bg-white/[0.01] h-full min-h-[250px]">
+                <p className="text-[17px] font-bold text-white/20 text-center">Empty Column</p>
+                <p className="text-[13px] text-white/10 text-center mt-3 font-semibold uppercase tracking-tighter">Ready for new tasks</p>
               </div>
             )}
           </AnimatePresence>

@@ -59,10 +59,11 @@ export const TaskKanban: React.FC<TaskKanbanProps> = ({ initialTasks, onEditTask
     setTasks(initialTasks);
   }, [initialTasks]);
 
+  // Aligned with backend status values: pending, in-progress, completed
   const kanbanColumns = [
-    { status: "todo", title: "To Do" },
-    { status: "in_progress", title: "In Progress" },
-    { status: "done", title: "Done" },
+    { status: "pending", title: "To Do" },
+    { status: "in-progress", title: "In Progress" },
+    { status: "completed", title: "Done" },
   ];
 
   const sensors = useSensors(
@@ -87,22 +88,21 @@ export const TaskKanban: React.FC<TaskKanbanProps> = ({ initialTasks, onEditTask
     if (!over) return;
 
     const activeTask = tasks.find(t => t.id === active.id);
+    // Try to find if over is a column status
     const overColumn = kanbanColumns.find(col => col.status === over.id);
     
     // If dropped over a column container (empty column case)
     if (activeTask && overColumn && activeTask.status !== overColumn.status) {
-        const updatedTask = { ...activeTask, status: overColumn.status };
+        const updatedTask = { ...activeTask, status: overColumn.status as string };
         setTasks((prevTasks) =>
           prevTasks.map((task) => (task.id === updatedTask.id ? updatedTask : task))
         );
-        await updateTaskMutation.mutateAsync(updatedTask);
+        await updateTaskMutation.mutateAsync({ id: updatedTask.id, status: updatedTask.status });
         return;
     }
 
     // If dropped over another task
     if (active.id !== over.id) {
-       // Logic for reordering within column or moving to another column via task drop
-       // Check if over is a task
        const overTask = tasks.find(t => t.id === over.id);
        if (overTask && activeTask && activeTask.status !== overTask.status) {
            // Moved to different column by dropping on a task
@@ -110,7 +110,7 @@ export const TaskKanban: React.FC<TaskKanbanProps> = ({ initialTasks, onEditTask
            setTasks((prevTasks) =>
             prevTasks.map((task) => (task.id === updatedTask.id ? updatedTask : task))
           );
-          await updateTaskMutation.mutateAsync(updatedTask);
+          await updateTaskMutation.mutateAsync({ id: updatedTask.id, status: updatedTask.status });
        }
     }
   };
@@ -142,7 +142,7 @@ export const TaskKanban: React.FC<TaskKanbanProps> = ({ initialTasks, onEditTask
           </SortableContext>
         ))}
       </div>
-      {createPortal(
+      {typeof document !== 'undefined' && createPortal(
         <DragOverlay dropAnimation={dropAnimation}>
           {activeTask ? (
              <TaskCard

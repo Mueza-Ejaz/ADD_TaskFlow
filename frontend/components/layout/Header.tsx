@@ -1,7 +1,8 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { Bell, Search } from 'lucide-react';
+import { Bell, Search, LogOut } from 'lucide-react';
+import { signOut } from 'next-auth/react';
 
 export const Header = () => {
   const { data: session } = useSession();
@@ -25,7 +26,7 @@ export const Header = () => {
           <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-[#00FFD1] ring-2 ring-black" />
         </button>
 
-        <div className="flex items-center gap-3 pl-6 border-l border-white/10 cursor-pointer group hover:bg-white/[0.02] py-1 px-2 rounded-xl transition-all">
+        <div className="flex items-center gap-3 pl-6 border-l border-white/10 group py-1 px-2 rounded-xl transition-all">
           <div className="text-right hidden sm:block">
             <p className="text-sm font-bold text-white group-hover:text-[#00FFD1] transition-colors">
               {session?.user?.name || 'User'}
@@ -41,6 +42,16 @@ export const Header = () => {
              </div>
           </div>
         </div>
+
+        {/* Header Logout Button */}
+        <button 
+          onClick={() => signOut({ callbackUrl: '/login' })}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all text-sm font-bold ml-2 shadow-sm"
+          title="Sign Out"
+        >
+          <LogOut size={16} />
+          <span className="hidden lg:inline">Logout</span>
+        </button>
       </div>
     </header>
   );

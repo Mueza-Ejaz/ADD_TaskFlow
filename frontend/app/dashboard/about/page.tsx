@@ -56,13 +56,13 @@ export default function AboutPage() {
       <div className="flex justify-center gap-6 text-gray-400 mt-12">
         <Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link>
         <Link href="#" className="hover:text-white transition-colors">Terms of Service</Link>
-        <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-2">
+        <a href="https://github.com/Mueza-Ejaz" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-2">
            <Github className="h-4 w-4" /> Open Source
         </a>
       </div>
       
       <div className="text-center text-sm text-gray-600 mt-4">
-        v2.0.0 • Built with Next.js 14 & Tailwind CSS
+        © Crafted with care by Mueza Ejaz 
       </div>
     </div>
   );
