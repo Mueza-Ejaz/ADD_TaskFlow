@@ -73,8 +73,9 @@ export const TaskCard: React.FC<TaskCardProps> = (props) => {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
       whileHover={{ y: -6, backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+      onClick={() => onEditTask(props)}
       className={clsx(
-        "group relative flex flex-col gap-4 rounded-2xl border-2 border-white/20 bg-white/[0.05] p-6 backdrop-blur-md transition-all hover:border-[#00FFD1]/50 shadow-2xl active:cursor-grabbing",
+        "group relative flex flex-col gap-4 rounded-2xl border-2 border-white/20 bg-white/[0.05] p-6 backdrop-blur-md transition-all hover:border-[#00FFD1]/50 shadow-2xl cursor-pointer active:cursor-grabbing",
         isDragging && "opacity-50 z-50 border-[#00FFD1] ring-4 ring-[#00FFD1]/20 shadow-[0_0_30px_rgba(0,255,209,0.3)]"
       )}
     >
