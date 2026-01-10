@@ -1,9 +1,8 @@
 import React from 'react';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
-import { Label } from './ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { ArrowDownUp } from 'lucide-react'; // Assuming lucide-react is available for icons
+import { ArrowDownUp, Search, SlidersHorizontal } from 'lucide-react';
 
 interface TaskFiltersProps {
   currentFilters: {
@@ -44,26 +43,32 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ currentFilters, onFilt
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
+    <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md shadow-lg transition-all duration-300 hover:border-white/20">
+      <div className="flex items-center gap-2 text-white/40 mr-2 border-r border-white/10 pr-4 hidden md:flex">
+        <SlidersHorizontal size={18} />
+        <span className="text-sm font-medium">Filters</span>
+      </div>
+
       {/* Search Input */}
-      <div className="min-w-[200px] flex-1">
+      <div className="min-w-[200px] flex-1 relative group">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 transition-colors group-focus-within:text-[#00FFD1]" />
         <Input
           id="search"
           type="text"
           placeholder="Search tasks..."
           value={currentFilters.search}
           onChange={handleInputChange}
-          className="bg-black/20 border-white/10 text-white placeholder:text-gray-500"
+          className="bg-black/20 border-white/10 text-white placeholder:text-gray-500 pl-10 h-11 transition-all focus:border-[#00FFD1]/50 focus:ring-2 focus:ring-[#00FFD1]/10 rounded-xl"
         />
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
         {/* Priority Filter */}
         <Select value={currentFilters.priority || 'all'} onValueChange={handlePriorityChange}>
-          <SelectTrigger className="w-[140px] bg-black/20 border-white/10">
+          <SelectTrigger className="w-[140px] h-11 bg-black/20 border-white/10 rounded-xl transition-all focus:border-[#00FFD1]/50">
             <SelectValue placeholder="Priority" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-black/90 backdrop-blur-xl border-white/10 text-white">
             <SelectItem value="all">All Priorities</SelectItem>
             <SelectItem value="1">High</SelectItem>
             <SelectItem value="2">Medium</SelectItem>
@@ -73,10 +78,10 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ currentFilters, onFilt
 
         {/* Status Filter */}
         <Select value={currentFilters.status || 'all'} onValueChange={handleStatusChange}>
-          <SelectTrigger className="w-[140px] bg-black/20 border-white/10">
+          <SelectTrigger className="w-[140px] h-11 bg-black/20 border-white/10 rounded-xl transition-all focus:border-[#00FFD1]/50">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-black/90 backdrop-blur-xl border-white/10 text-white">
             <SelectItem value="all">All Statuses</SelectItem>
             <SelectItem value="todo">To Do</SelectItem>
             <SelectItem value="in_progress">In Progress</SelectItem>
@@ -86,10 +91,10 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ currentFilters, onFilt
 
         {/* Sort By */}
         <Select value={currentFilters.sortBy || 'none'} onValueChange={handleSortByChange}>
-          <SelectTrigger className="w-[140px] bg-black/20 border-white/10">
+          <SelectTrigger className="w-[140px] h-11 bg-black/20 border-white/10 rounded-xl transition-all focus:border-[#00FFD1]/50">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-black/90 backdrop-blur-xl border-white/10 text-white">
             <SelectItem value="none">Sort by</SelectItem>
             <SelectItem value="due_date">Due Date</SelectItem>
             <SelectItem value="priority">Priority</SelectItem>
@@ -103,9 +108,9 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ currentFilters, onFilt
           size="icon"
           onClick={handleSortOrderToggle}
           aria-label="Sort Order"
-          className="bg-black/20 border-white/10"
+          className="h-11 w-11 bg-black/20 border-white/10 rounded-xl hover:bg-[#00FFD1]/10 hover:text-[#00FFD1] hover:border-[#00FFD1]/30 transition-all active:scale-95"
         >
-          <ArrowDownUp className={`h-4 w-4 transition-transform duration-200 ${currentFilters.sortOrder === 'desc' ? 'rotate-180' : ''}`} />
+          <ArrowDownUp className={`h-4 w-4 transition-transform duration-300 ${currentFilters.sortOrder === 'desc' ? 'rotate-180' : ''}`} />
         </Button>
       </div>
     </div>

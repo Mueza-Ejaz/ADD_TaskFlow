@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState, Suspense } from "react";
 import dynamic from "next/dynamic";
-import { Plus } from "lucide-react";
+import { Plus, CheckCircle2 } from "lucide-react";
 
 // Dynamically import components
 const DynamicModal = dynamic(() => import("@/components/ui/Modal").then((mod) => mod.Modal), {
@@ -96,7 +96,7 @@ export default function DashboardPage() {
   if (status === "loading") {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#00FFD1] border-t-transparent shadow-[0_0_15px_rgba(0,255,209,0.2)]" />
       </div>
     );
   }
@@ -108,10 +108,15 @@ export default function DashboardPage() {
 
   return (
     <>
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-white">Task Board</h2>
-          <p className="text-sm text-gray-400">Manage your tasks projects</p>
+      <div className="mb-10 flex items-center justify-between">
+        <div className="flex items-start gap-4">
+          <div className="p-3 bg-[#00FFD1]/10 rounded-2xl border border-[#00FFD1]/20 shadow-[0_0_15px_rgba(0,255,209,0.1)] hidden sm:block">
+            <CheckCircle2 className="text-[#00FFD1] w-6 h-6" />
+          </div>
+          <div>
+            <h2 className="text-3xl font-bold text-white tracking-tight">Task Board</h2>
+            <p className="text-sm text-white/50 font-medium">Manage and organize your projects efficiently</p>
+          </div>
         </div>
         <Button
           onClick={() => {
@@ -119,30 +124,30 @@ export default function DashboardPage() {
             setIsModalOpen(true);
           }}
           variant="primary"
-          className="hidden sm:flex gap-2"
+          className="hidden sm:flex gap-2 h-12 px-6 rounded-xl bg-[#00FFD1] text-black font-bold hover:shadow-[0_0_20px_rgba(0,255,209,0.4)] transition-all hover:scale-[1.05] active:scale-[0.98]"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="h-5 w-5" />
           Create Task
         </Button>
       </div>
 
-      <div className="mb-6">
+      <div className="mb-8">
         <TaskFiltersComponent 
           currentFilters={filters as any} 
           onFilterChange={handleFilterChange} 
         />
       </div>
 
-      <div className="h-[calc(100vh-18rem)]">
+      <div className="h-[calc(100vh-20rem)]">
         {isLoading ? (
           <div className="flex justify-center items-center h-full">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
+            <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#00FFD1] border-t-transparent shadow-[0_0_15px_rgba(0,255,209,0.2)]" />
           </div>
         ) : isError ? (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <p className="text-red-400 mb-4">Error loading tasks.</p>
-            <Button onClick={() => window.location.reload()} variant="secondary">
-              Retry
+          <div className="flex flex-col items-center justify-center h-full text-center glass-card">
+            <p className="text-red-400 mb-4 font-medium">Error loading tasks. Please check your connection.</p>
+            <Button onClick={() => window.location.reload()} variant="secondary" className="border-white/20 hover:border-white/40">
+              Retry Connection
             </Button>
           </div>
         ) : (
@@ -159,7 +164,7 @@ export default function DashboardPage() {
           setEditingTask(null);
           setIsModalOpen(true);
         }}
-        className="sm:hidden"
+        className="sm:hidden bg-[#00FFD1] text-black shadow-[0_0_20px_rgba(0,255,209,0.3)]"
       />
 
       <DynamicModal isOpen={isModalOpen} onClose={closeModal} title={editingTask ? "Edit Task" : "Create New Task"}>
