@@ -1,14 +1,22 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { Bell, Search, LogOut } from 'lucide-react';
+import { Bell, Search, LogOut, Menu } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 
-export const Header = () => {
+export const Header = ({ onMenuClick }: { onMenuClick?: () => void }) => {
   const { data: session } = useSession();
 
   return (
-    <header className="sticky top-0 z-30 mb-8 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-6 py-4 backdrop-blur-md shadow-lg">
+    <header className="sticky top-0 z-30 mb-4 flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-md shadow-lg">
+      {/* Mobile Menu Button */}
+      <button 
+        onClick={onMenuClick}
+        className="mr-4 rounded-lg p-2 text-white/70 hover:bg-white/10 hover:text-[#00FFD1] md:hidden transition-colors"
+      >
+        <Menu className="h-6 w-6" />
+      </button>
+
       {/* Search Bar */}
       <div className="relative hidden w-96 md:block group">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40 group-focus-within:text-[#00FFD1] transition-colors" />

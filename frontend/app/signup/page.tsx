@@ -78,8 +78,23 @@ export default function SignupPage() {
     }
   };
 
-  if (status === 'loading' || status === 'authenticated') {
-    return null;
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#00FFD1] border-t-transparent shadow-[0_0_15px_rgba(0,255,209,0.2)]" />
+      </div>
+    );
+  }
+
+  if (status === 'authenticated') {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#00FFD1] border-t-transparent shadow-[0_0_15px_rgba(0,255,209,0.2)] mx-auto mb-4" />
+          <p className="text-white">Redirecting to dashboard...</p>
+        </div>
+      </div>
+    );
   }
 
   return (

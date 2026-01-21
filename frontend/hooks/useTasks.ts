@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { z } from 'zod';
 import { TaskFormSchema } from '@/components/TaskForm'; // Import the schema from TaskForm
@@ -10,6 +11,18 @@ type TaskCreate = z.infer<typeof TaskFormSchema>;
 export const useTasks = (filters: TaskFilters = {}) => {
   const { data: session } = useSession();
   const accessToken = session?.accessToken;
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const handleRefresh = () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    };
+
+    window.addEventListener('TASK_LIST_REFRESH', handleRefresh);
+    return () => {
+      window.removeEventListener('TASK_LIST_REFRESH', handleRefresh);
+    };
+  }, [queryClient]);
 
   return useQuery<TaskRead[], Error>({
     queryKey: ['tasks', filters], // Include filters in queryKey

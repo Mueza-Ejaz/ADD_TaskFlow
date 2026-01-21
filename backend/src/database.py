@@ -17,6 +17,18 @@ Select.inherit_cache = True
 
 # Configure engine for SQLite with proper settings
 connect_args = {"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {}
+
+# Log the database we are connecting to (masked for security)
+db_url_log = settings.DATABASE_URL
+if "@" in db_url_log:
+    # Mask password in postgresql://user:pass@host...
+    prefix = db_url_log.split("@")[0]
+    suffix = db_url_log.split("@")[1]
+    masked_prefix = prefix.split(":")[0] + ":******"
+    print(f"[DB] Connecting to Database: {masked_prefix}@{suffix}")
+else:
+    print(f"[DB] Connecting to Database: {db_url_log}")
+
 engine = create_engine(settings.DATABASE_URL, echo=True, connect_args=connect_args)
 
 def create_db_and_tables():

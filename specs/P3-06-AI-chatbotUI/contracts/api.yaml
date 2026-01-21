@@ -1,0 +1,63 @@
+openapi: 3.0.0
+info:
+  title: TaskFlow Chat API
+  version: 1.0.0
+  description: API contract for Phase 6 Chatbot Frontend integration.
+paths:
+  /api/{user_id}/chat:
+    post:
+      summary: Send a message to the AI agent
+      description: Sends a user message and receives a streamed response or JSON object containing the AI's reply and any tool calls.
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique ID of the authenticated user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: The user's natural language input.
+                  example: "Create a task to buy milk tomorrow"
+                conversation_id:
+                  type: string
+                  format: uuid
+                  description: Optional ID to continue an existing conversation.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  role:
+                    type: string
+                    example: "assistant"
+                  content:
+                    type: string
+                    description: The AI's textual response.
+                  tool_calls:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          example: "add_task"
+                        status:
+                          type: string
+                          enum: [success, error]
+                        result:
+                          type: object
+        '401':
+          description: Unauthorized (Invalid or missing JWT)
+        '500':
+          description: Internal Server Error

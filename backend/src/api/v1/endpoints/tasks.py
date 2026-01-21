@@ -21,7 +21,7 @@ async def create_task(
     current_user: User = Depends(get_current_user),
     task_service: TaskService = Depends(get_task_service)
 ):
-    task = task_service.create_task(task_create, current_user.id)
+    task = task_service.create_task(task_create, str(current_user.id))
     return task
 
 @task_router.get("/", response_model=List[TaskRead])
@@ -35,7 +35,7 @@ async def read_tasks(
     sort_order: Optional[str] = None,
 ):
     tasks = task_service.get_user_tasks(
-        user_id=current_user.id,
+        user_id=str(current_user.id),
         status=status,
         priority=priority,
         search=search,
@@ -50,7 +50,7 @@ async def read_task_by_id(
     current_user: User = Depends(get_current_user),
     task_service: TaskService = Depends(get_task_service)
 ):
-    task = task_service.get_task_by_id(task_id, current_user.id)
+    task = task_service.get_task_by_id(task_id, str(current_user.id))
     if not task:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
     return task
@@ -62,7 +62,7 @@ async def update_task(
     current_user: User = Depends(get_current_user),
     task_service: TaskService = Depends(get_task_service)
 ):
-    task = task_service.update_task(task_id, task_update, current_user.id)
+    task = task_service.update_task(task_id, task_update, str(current_user.id))
     if not task:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found or not owned by user")
     return task
@@ -73,7 +73,7 @@ async def delete_task(
     current_user: User = Depends(get_current_user),
     task_service: TaskService = Depends(get_task_service)
 ):
-    success = task_service.delete_task(task_id, current_user.id)
+    success = task_service.delete_task(task_id, str(current_user.id))
     if not success:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found or not owned by user")
     return
@@ -85,7 +85,7 @@ async def complete_task(
     task_service: TaskService = Depends(get_task_service)
 ):
     task_update = TaskUpdate(completed=True, status="completed")
-    task = task_service.update_task(task_id, task_update, current_user.id)
+    task = task_service.update_task(task_id, task_update, str(current_user.id))
     if not task:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found or not owned by user")
     return task

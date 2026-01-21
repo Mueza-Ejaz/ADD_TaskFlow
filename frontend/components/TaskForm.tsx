@@ -126,7 +126,28 @@ export function TaskForm({
             id="due_date"
             type="datetime-local"
             {...register("due_date")}
-            className="border-white/20 focus:border-[#00FFD1] text-white !opacity-100"
+            disabled={isSubmitting}
+            onClick={(e) => {
+              // Try to open the picker programmatically on click
+              try {
+                if ('showPicker' in HTMLInputElement.prototype) {
+                  e.currentTarget.showPicker();
+                }
+              } catch (error) {
+                // Ignore errors (e.g. if already open or not supported)
+              }
+            }}
+            onFocus={(e) => {
+              // Also try on focus for better accessibility
+              try {
+                if ('showPicker' in HTMLInputElement.prototype) {
+                  e.currentTarget.showPicker();
+                }
+              } catch (error) {
+                // Ignore
+              }
+            }}
+            className="border-white/20 focus:border-[#00FFD1] text-white !opacity-100 dark-calendar cursor-pointer"
           />
         </div>
       </div>

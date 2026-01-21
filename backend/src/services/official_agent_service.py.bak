@@ -1,0 +1,314 @@
+"""
+Official Agent Service using Google Gemini with MCP Tools
+Integrates with the official MCP server implementation using Gemini instead of OpenAI
+"""
+
+import os
+import json
+from datetime import datetime
+from typing import List, Dict, Any, Optional
+from sqlmodel import Session
+
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
+
+# Use the proven google-generativeai package for compatibility
+from google.generativeai import GenerativeModel
+import google.generativeai as genai
+
+from ..models.conversation import Conversation
+from ..models.message import Message, MessageRole
+from ..schemas.chat import ChatRequest, ChatResponse, ChatMessage
+from ..services.chat_service import ChatService
+from ..services.mcp_tools import (
+    add_task, list_tasks, update_task, complete_task, delete_task,
+    AddTaskParams, ListTasksParams, UpdateTaskParams, CompleteTaskParams, DeleteTaskParams
+)
+from ..config import settings
+
+
+class OfficialAgentService:
+    def __init__(self, db_session: Session):
+        # Initialize with Gemini API instead of OpenAI
+        api_key = settings.GEMINI_API_KEY
+        if not api_key:
+            raise ValueError("GEMINI_API_KEY environment variable is required")
+
+        genai.configure(api_key=api_key)
+        self.model = GenerativeModel('gemini-pro')
+        self.db_session = db_session
+        self.chat_service = ChatService(db_session)
+
+        # Register available tools (similar to MCP tools)
+        self.tools = {
+            "add_task": {
+                "function": add_task,
+                "schema": AddTaskParams
+            },
+            "list_tasks": {
+                "function": list_tasks,
+                "schema": ListTasksParams
+            },
+            "update_task": {
+                "function": update_task,
+                "schema": UpdateTaskParams
+            },
+            "complete_task": {
+                "function": complete_task,
+                "schema": CompleteTaskParams
+            },
+            "delete_task": {
+                "function": delete_task,
+                "schema": DeleteTaskParams
+            }
+        }
+
+    def _load_conversation_history(self, conversation_id: Optional[int], user_id: str) -> List[Dict[str, Any]]:
+        """Load conversation history from database using ChatService"""
+        conversation = self.chat_service.get_or_create_conversation(conversation_id, user_id)
+
+        # Get full conversation history using ChatService
+        full_history = self.chat_service.load_full_conversation_history(conversation.id)
+
+        # Format history for the model
+        history = []
+        for msg in full_history:
+            history.append({
+                "role": msg["role"],
+                "parts": [msg["content"]]
+            })
+
+        return history, conversation.id
+
+    def _save_message(self, conversation_id: int, user_id: str, role: MessageRole, content: str, tool_calls: Optional[str] = None):
+        """Save a message to the database using ChatService"""
+        return self.chat_service.save_message(conversation_id, user_id, role, content, tool_calls)
+
+    def _execute_tool_calls(self, tool_calls: List[Dict[str, Any]], user_id: str) -> List[Dict[str, Any]]:
+        """Execute tool calls and return results"""
+        results = []
+
+        for tool_call in tool_calls:
+            tool_name = tool_call.get("name")
+            arguments = tool_call.get("arguments", {})
+
+            if tool_name not in self.tools:
+                results.append({
+                    "id": tool_call.get("id"),
+                    "result": {"error": f"Unknown tool: {tool_name}"}
+                })
+                continue
+
+            tool_info = self.tools[tool_name]
+            try:
+                # Validate arguments against schema
+                params = tool_info["schema"](**arguments)
+
+                # Execute the tool with database session
+                result = tool_info["function"](params, self.db_session)
+
+                results.append({
+                    "id": tool_call.get("id"),
+                    "result": result
+                })
+            except Exception as e:
+                results.append({
+                    "id": tool_call.get("id"),
+                    "result": {"error": str(e)}
+                })
+
+        return results
+
+    def _parse_for_tool_calls(self, user_input: str) -> Optional[Dict[str, Any]]:
+        """Simple parser to detect if user wants to call a specific tool"""
+        user_lower = user_input.lower().strip()
+
+        # Detect add_task
+        if any(keyword in user_lower for keyword in ["add", "create", "new task", "remind me", "remember"]):
+            # Extract task title - this is a simple heuristic
+            import re
+            # Look for patterns like "remind me to buy milk" or "add task: buy milk"
+            match = re.search(r'(?:to|that|:)\s*(.+)', user_input, re.IGNORECASE)
+            if match:
+                title = match.group(1).strip()
+            else:
+                title = user_input.replace("add", "").replace("create", "").replace("task", "").strip()
+
+            if title:
+                return {
+                    "name": "add_task",
+                    "arguments": {
+                        "user_id": "1",  # This will be replaced with actual user_id
+                        "title": title[:100] if len(title) > 100 else title,  # Limit length
+                        "description": f"Task created from chat: {user_input}"
+                    }
+                }
+
+        # Detect list_tasks
+        elif any(keyword in user_lower for keyword in ["show", "list", "view", "what", "my tasks", "pending"]):
+            # Check if user is asking for specific status
+            status = None
+            if "completed" in user_lower:
+                status = "completed"
+            elif "pending" in user_lower or "todo" in user_lower:
+                status = "pending"
+
+            return {
+                "name": "list_tasks",
+                "arguments": {
+                    "user_id": "1",  # This will be replaced with actual user_id
+                    "status": status
+                }
+            }
+
+        # Detect complete_task
+        elif any(keyword in user_lower for keyword in ["complete", "done", "finish", "mark as done"]):
+            import re
+            # Look for task ID in the message
+            match = re.search(r'#(\d+)|task\s*(\d+)', user_input, re.IGNORECASE)
+            task_id = None
+            if match:
+                task_id = int(match.group(1) or match.group(2))
+
+            if task_id:
+                return {
+                    "name": "complete_task",
+                    "arguments": {
+                        "user_id": "1",  # This will be replaced with actual user_id
+                        "task_id": task_id
+                    }
+                }
+
+        # Detect delete_task
+        elif any(keyword in user_lower for keyword in ["delete", "remove", "cancel"]):
+            import re
+            # Look for task ID in the message
+            match = re.search(r'#(\d+)|task\s*(\d+)', user_input, re.IGNORECASE)
+            task_id = None
+            if match:
+                task_id = int(match.group(1) or match.group(2))
+
+            if task_id:
+                return {
+                    "name": "delete_task",
+                    "arguments": {
+                        "user_id": "1",  # This will be replaced with actual user_id
+                        "task_id": task_id
+                    }
+                }
+
+        return None  # No tool call detected
+
+    def chat(self, chat_request: ChatRequest) -> ChatResponse:
+        """Process a chat request using the Gemini model with MCP tools"""
+        try:
+            # Load conversation history
+            history, conversation_id = self._load_conversation_history(
+                chat_request.conversation_id,
+                chat_request.user_id
+            )
+
+            # Check if the user input matches any tool calls
+            tool_call_detected = self._parse_for_tool_calls(chat_request.message)
+            tool_calls_executed = []
+            response_text = ""
+
+            if tool_call_detected:
+                # Update the user_id in the arguments
+                tool_call_detected["arguments"]["user_id"] = chat_request.user_id
+
+                # Execute the detected tool
+                try:
+                    tool_result = self._execute_tool_calls([tool_call_detected], chat_request.user_id)[0]
+                    tool_calls_executed.append(tool_call_detected)
+
+                    # Get the result message
+                    result_data = tool_result["result"]
+                    if result_data.get("success"):
+                        response_text = result_data.get("message", "Operation completed successfully.")
+                    else:
+                        response_text = f"I'm sorry, but I encountered an issue: {result_data.get('error', 'Unknown error occurred.')}"
+                except Exception as tool_error:
+                    response_text = f"I'm sorry, I couldn't process your request at the moment. Please try again or rephrase your request."
+                    print(f"Tool execution error: {str(tool_error)}")  # Log the error for debugging
+            else:
+                # No specific tool call detected, use the Gemini model for general response
+                # Prepare the full conversation for the model
+                full_history = history[:]  # Copy the history
+                full_history.append({
+                    "role": "user",
+                    "parts": [chat_request.message]
+                })
+
+                # Generate response from the model
+                try:
+                    chat = self.model.start_chat(history=full_history)
+                    response = chat.send_message(chat_request.message)
+                    response_text = response.text
+                except Exception as gemini_error:
+                    # Fallback response if Gemini fails
+                    print(f"Gemini API error: {str(gemini_error)}")  # Log the error for debugging
+                    response_text = f"I received your message: '{chat_request.message}'. For task management, please be more specific like 'add task: buy groceries' or 'show my tasks'."
+
+            # Save user message
+            self._save_message(
+                conversation_id,
+                chat_request.user_id,
+                MessageRole.USER,
+                chat_request.message,
+                json.dumps(tool_calls_executed) if tool_calls_executed else None
+            )
+
+            # Save assistant message
+            self._save_message(
+                conversation_id,
+                chat_request.user_id,
+                MessageRole.ASSISTANT,
+                response_text
+            )
+
+            # Create response
+            chat_message = ChatMessage(
+                role=MessageRole.ASSISTANT,
+                content=response_text
+            )
+
+            return ChatResponse(
+                conversation_id=conversation_id,
+                message=chat_message,
+                tool_calls_executed=tool_calls_executed,
+                success=True,
+                # Add metadata for transparency
+                metadata={
+                    "processed_at": datetime.now().isoformat(),
+                    "has_tool_calls": len(tool_calls_executed) > 0
+                }
+            )
+
+        except ValueError as ve:
+            # Handle validation errors (e.g., invalid conversation ID)
+            error_msg = "I'm sorry, but there was an issue with your request. Please make sure you're authorized to access this conversation."
+            return ChatResponse(
+                conversation_id=0,
+                message=ChatMessage(
+                    role=MessageRole.ASSISTANT,
+                    content=error_msg
+                ),
+                success=False,
+                error_message=str(ve),
+                metadata={"error_type": "validation_error"}
+            )
+        except Exception as e:
+            # Handle any other errors with a friendly message
+            error_msg = "I'm sorry, but I encountered an unexpected issue while processing your request. Please try again in a moment."
+            print(f"Agent service error: {str(e)}")  # Log the error for debugging
+            return ChatResponse(
+                conversation_id=0,
+                message=ChatMessage(
+                    role=MessageRole.ASSISTANT,
+                    content=error_msg
+                ),
+                success=False,
+                error_message=str(e),
+                metadata={"error_type": "unexpected_error"}
+            )

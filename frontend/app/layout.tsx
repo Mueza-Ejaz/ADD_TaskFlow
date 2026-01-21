@@ -2,6 +2,8 @@ import AuthProvider from '@/providers/AuthProvider';
 import { ToastProvider } from '@/providers/ToastProvider';
 import ReactQueryProvider from '@/providers/ReactQueryProvider';
 import { PageTransition } from '@/components/ui/PageTransition'; // Import PageTransition
+import { SessionUpdater } from '@/components/auth/SessionUpdater';
+import GlobalEventHandler from '@/components/GlobalEventHandler';
 import type { Metadata } from 'next';
 import './globals.css';
 
@@ -22,6 +24,8 @@ export default function RootLayout({
           <AuthProvider>
             <ToastProvider>
               <PageTransition>
+                 <SessionUpdater />
+                 <GlobalEventHandler />
                  {children}
               </PageTransition>
             </ToastProvider>

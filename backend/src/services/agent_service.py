@@ -1,26 +1,25 @@
 """
 Agent Service for managing AI Agent interactions
 Handles conversation history loading, agent initialization, and response processing
-Uses Google Gemini model instead of OpenAI as per requirements
+Uses Google Gemini model with native Function Calling and Rate Limit Handling
 """
 
 import os
 import json
+import time
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from sqlmodel import Session
 
-# Suppress the deprecation warning for now since we're using a stable version
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 
-# Use the proven google-generativeai package for compatibility
 from google.generativeai import GenerativeModel
 import google.generativeai as genai
 
 from ..models.conversation import Conversation
 from ..models.message import Message, MessageRole
-from ..schemas.chat import ChatRequest, ChatResponse, ChatMessage, ToolCall, ToolCallResult
+from ..schemas.chat import ChatRequest, ChatResponse, ChatMessage
 from .mcp_tools import (
     add_task, list_tasks, update_task, complete_task, delete_task,
     AddTaskParams, ListTasksParams, UpdateTaskParams, CompleteTaskParams, DeleteTaskParams
@@ -31,289 +30,159 @@ from ..config import settings
 
 class AgentService:
     def __init__(self, db_session: Session):
-        # Initialize with Gemini API instead of OpenAI (as per requirements)
         api_key = settings.GEMINI_API_KEY
         if not api_key:
             raise ValueError("GEMINI_API_KEY environment variable is required")
 
         genai.configure(api_key=api_key)
-        self.model = GenerativeModel('gemini-pro')  # Using a free model as requested
-        self.db_session = db_session
-        self.chat_service = ChatService(db_session)  # Use the new chat service
+        
+        # Tools for Gemini - with enhanced descriptions for better context understanding
+        def tool_add_task(user_id: str, title: str, description: str = ""):
+            """Creates a new task for the current user. The user_id is automatically provided by the system, so the user does not need to specify it. Parameters: title (required), description (optional)."""
+            return "Pending"
 
-        # Register available tools
-        self.tools = {
-            "add_task": {
-                "function": add_task,
-                "schema": AddTaskParams
-            },
-            "list_tasks": {
-                "function": list_tasks,
-                "schema": ListTasksParams
-            },
-            "update_task": {
-                "function": update_task,
-                "schema": UpdateTaskParams
-            },
-            "complete_task": {
-                "function": complete_task,
-                "schema": CompleteTaskParams
-            },
-            "delete_task": {
-                "function": delete_task,
-                "schema": DeleteTaskParams
-            }
+        def tool_list_tasks(user_id: str, status: str = None):
+            """Lists all tasks for the current user. The user_id is automatically provided by the system, so the user does not need to specify it. Parameters: status (optional) - filter tasks by status (e.g., 'pending', 'completed')."""
+            return "Pending"
+
+        def tool_update_task(user_id: str, task_id: int = None, title: str = None, description: str = None, status: str = None):
+            """Updates an existing task for the current user. The user_id is automatically provided by the system, so the user does not need to specify it. Parameters: task_id (optional) OR (title and status must be provided together to find and update the task by title). If user wants to update status only, they can say 'mark task [title] as [status]' and the system will find the task by title and update its status. Common statuses: 'pending', 'in progress', 'completed'. Status values are automatically normalized to match system expectations (e.g., 'in progress' becomes 'in-progress'). If updating by ID, only one of title, description, or status is required."""
+            return "Pending"
+
+        def tool_complete_task(user_id: str, task_id: int):
+            """Marks a task as completed for the current user. The user_id is automatically provided by the system, so the user does not need to specify it. Parameters: task_id (required)."""
+            return "Pending"
+
+        def tool_delete_task(user_id: str, task_id: int = None, title: str = None):
+            """Deletes a task for the current user. The user_id is automatically provided by the system, so the user does not need to specify it. Parameters: task_id (optional) OR title (optional) - either the task ID or exact/partial title to identify the task to delete. If user says 'delete task smoking with description', the title would be 'smoking with description'. Priority is given to task_id if both are provided."""
+            return "Pending"
+
+        self.gemini_tools = [tool_add_task, tool_list_tasks, tool_update_task, tool_complete_task, tool_delete_task]
+        
+        # Using gemini-2.5-flash as it's highly stable and widely available across all regions/keys
+        self.model = GenerativeModel('gemini-2.5-flash', tools=self.gemini_tools)
+        self.db_session = db_session
+        self.chat_service = ChatService(db_session)
+
+        self.tool_map = {
+            "tool_add_task": {"func": add_task, "schema": AddTaskParams},
+            "tool_list_tasks": {"func": list_tasks, "schema": ListTasksParams},
+            "tool_update_task": {"func": update_task, "schema": UpdateTaskParams},
+            "tool_complete_task": {"func": complete_task, "schema": CompleteTaskParams},
+            "tool_delete_task": {"func": delete_task, "schema": DeleteTaskParams},
         }
 
     def _load_conversation_history(self, conversation_id: Optional[int], user_id: str) -> List[Dict[str, Any]]:
-        """Load conversation history from database using ChatService"""
         conversation = self.chat_service.get_or_create_conversation(conversation_id, user_id)
+        
+        # Load only the last 10 messages to avoid token limit (TPM)
+        all_history = self.chat_service.load_full_conversation_history(conversation.id)
+        recent_history = all_history[-10:] if len(all_history) > 10 else all_history
 
-        # Get full conversation history using ChatService
-        full_history = self.chat_service.load_full_conversation_history(conversation.id)
-
-        # Format history for the model
         history = []
-        for msg in full_history:
-            history.append({
-                "role": msg["role"],
-                "parts": [msg["content"]]
-            })
+        for msg in recent_history:
+            role = "user" if msg["role"] == "user" else "model"
+            history.append({"role": role, "parts": [msg["content"]]})
 
         return history, conversation.id
 
     def _save_message(self, conversation_id: int, user_id: str, role: MessageRole, content: str, tool_calls: Optional[str] = None):
-        """Save a message to the database using ChatService"""
         return self.chat_service.save_message(conversation_id, user_id, role, content, tool_calls)
 
-    def _execute_tool_calls(self, tool_calls: List[Dict[str, Any]], user_id: str) -> List[Dict[str, Any]]:
-        """Execute tool calls and return results"""
-        results = []
-
-        for tool_call in tool_calls:
-            tool_name = tool_call.get("name")
-            arguments = tool_call.get("arguments", {})
-
-            if tool_name not in self.tools:
-                results.append({
-                    "id": tool_call.get("id"),
-                    "result": {"error": f"Unknown tool: {tool_name}"}
-                })
-                continue
-
-            tool_info = self.tools[tool_name]
-            try:
-                # Validate arguments against schema
-                params = tool_info["schema"](**arguments)
-
-                # Execute the tool with database session
-                result = tool_info["function"](params, self.db_session)
-
-                results.append({
-                    "id": tool_call.get("id"),
-                    "result": result
-                })
-            except Exception as e:
-                results.append({
-                    "id": tool_call.get("id"),
-                    "result": {"error": str(e)}
-                })
-
-        return results
-
-    def _parse_for_tool_calls(self, user_input: str) -> Optional[Dict[str, Any]]:
-        """Simple parser to detect if user wants to call a specific tool"""
-        user_lower = user_input.lower().strip()
-
-        # Detect add_task
-        if any(keyword in user_lower for keyword in ["add", "create", "new task", "remind me", "remember"]):
-            # Extract task title - this is a simple heuristic
-            # In a real implementation, we'd use a more sophisticated NLP approach
-            import re
-            # Look for patterns like "remind me to buy milk" or "add task: buy milk"
-            match = re.search(r'(?:to|that|:)\s*(.+)', user_input, re.IGNORECASE)
-            if match:
-                title = match.group(1).strip()
-            else:
-                title = user_input.replace("add", "").replace("create", "").replace("task", "").strip()
-
-            if title:
-                return {
-                    "name": "add_task",
-                    "arguments": {
-                        "user_id": "1",  # This will be replaced with actual user_id
-                        "title": title[:100] if len(title) > 100 else title,  # Limit length
-                        "description": f"Task created from chat: {user_input}"
-                    }
-                }
-
-        # Detect list_tasks
-        elif any(keyword in user_lower for keyword in ["show", "list", "view", "what", "my tasks", "pending"]):
-            # Check if user is asking for specific status
-            status = None
-            if "completed" in user_lower:
-                status = "completed"
-            elif "pending" in user_lower or "todo" in user_lower:
-                status = "pending"
-
-            return {
-                "name": "list_tasks",
-                "arguments": {
-                    "user_id": "1",  # This will be replaced with actual user_id
-                    "status": status
-                }
-            }
-
-        # Detect complete_task
-        elif any(keyword in user_lower for keyword in ["complete", "done", "finish", "mark as done"]):
-            import re
-            # Look for task ID in the message
-            match = re.search(r'#(\d+)|task\s*(\d+)', user_input, re.IGNORECASE)
-            task_id = None
-            if match:
-                task_id = int(match.group(1) or match.group(2))
-
-            if task_id:
-                return {
-                    "name": "complete_task",
-                    "arguments": {
-                        "user_id": "1",  # This will be replaced with actual user_id
-                        "task_id": task_id
-                    }
-                }
-
-        # Detect delete_task
-        elif any(keyword in user_lower for keyword in ["delete", "remove", "cancel"]):
-            import re
-            # Look for task ID in the message
-            match = re.search(r'#(\d+)|task\s*(\d+)', user_input, re.IGNORECASE)
-            task_id = None
-            if match:
-                task_id = int(match.group(1) or match.group(2))
-
-            if task_id:
-                return {
-                    "name": "delete_task",
-                    "arguments": {
-                        "user_id": "1",  # This will be replaced with actual user_id
-                        "task_id": task_id
-                    }
-                }
-
-        return None  # No tool call detected
-
     def chat(self, chat_request: ChatRequest) -> ChatResponse:
-        """Process a chat request and return a response"""
-        from sqlmodel import select
+        max_retries = 3
+        
+        for attempt in range(max_retries):
+            try:
+                history, conversation_id = self._load_conversation_history(chat_request.conversation_id, chat_request.user_id)
+                chat_session = self.model.start_chat(history=history)
+                
+                response = chat_session.send_message(chat_request.message)
+                tool_calls_executed = []
+                
+                function_call_parts = [part for part in response.parts if part.function_call]
+                
+                if function_call_parts:
+                    tool_responses = []
+                    for part in function_call_parts:
+                        fc = part.function_call
+                        tool_name = fc.name
+                        args = dict(fc.args)
+                        args["user_id"] = chat_request.user_id
+                        
+                        if tool_name in self.tool_map:
+                            tool_def = self.tool_map[tool_name]
+                            params = tool_def["schema"](**args)
+                            result = tool_def["func"](params, self.db_session)
 
-        try:
-            # Load conversation history
-            history, conversation_id = self._load_conversation_history(
-                chat_request.conversation_id,
-                chat_request.user_id
-            )
+                            tool_calls_executed.append({
+                                "name": tool_name.replace("tool_", ""),
+                                "arguments": args,
+                                "result": result
+                            })
 
-            # Check if the user input matches any tool calls
-            tool_call_detected = self._parse_for_tool_calls(chat_request.message)
-            tool_calls_executed = []
-            response_text = ""
+                            # Format the response for this specific tool call
+                            tool_responses.append(genai.protos.Part(
+                                function_response=genai.protos.FunctionResponse(
+                                    name=tool_name,
+                                    response={"content": str(result)}
+                                )
+                            ))
 
-            if tool_call_detected:
-                # Update the user_id in the arguments
-                tool_call_detected["arguments"]["user_id"] = chat_request.user_id
+                    if tool_responses:
+                        # Send all tool results back in a single message
+                        time.sleep(1)
+                        response = chat_session.send_message(
+                            genai.protos.Content(
+                                parts=tool_responses
+                            )
+                        )
+                
+                final_text = response.text
+                self._save_message(conversation_id, chat_request.user_id, MessageRole.USER, chat_request.message, 
+                                 json.dumps(tool_calls_executed) if tool_calls_executed else None)
+                self._save_message(conversation_id, chat_request.user_id, MessageRole.ASSISTANT, final_text)
 
-                # Execute the detected tool
-                try:
-                    tool_result = self._execute_tool_calls([tool_call_detected], chat_request.user_id)[0]
-                    tool_calls_executed.append(tool_call_detected)
+                return ChatResponse(
+                    conversation_id=conversation_id,
+                    message=ChatMessage(role=MessageRole.ASSISTANT, content=final_text),
+                    tool_calls_executed=tool_calls_executed,
+                    success=True,
+                    metadata={"has_tool_calls": len(tool_calls_executed) > 0}
+                )
 
-                    # Get the result message
-                    result_data = tool_result["result"]
-                    if result_data.get("success"):
-                        response_text = result_data.get("message", "Operation completed successfully.")
-                    else:
-                        response_text = f"I'm sorry, but I encountered an issue: {result_data.get('error', 'Unknown error occurred.')}"
-                except Exception as tool_error:
-                    response_text = f"I'm sorry, I couldn't process your request at the moment. Please try again or rephrase your request."
-                    print(f"Tool execution error: {str(tool_error)}")  # Log the error for debugging
-            else:
-                # No specific tool call detected, use the Gemini model for general response
-                # Prepare the full conversation for the model
-                full_history = history[:]  # Copy the history
-                full_history.append({
-                    "role": "user",
-                    "parts": [chat_request.message]
-                })
+            except Exception as e:
+                # Handle Rate Limit (429) specifically
+                if "429" in str(e) and attempt < max_retries - 1:
+                    wait_time = (attempt + 1) * 5 # Exponential backoff: 5s, 10s
+                    print(f"Rate limit hit (429), waiting {wait_time}s and retrying...")
+                    time.sleep(wait_time)
+                    continue
 
-                # Generate response from the model
-                try:
-                    chat = self.model.start_chat(history=full_history)
-                    response = chat.send_message(chat_request.message)
-                    response_text = response.text
-                except Exception as gemini_error:
-                    # Fallback response if Gemini fails
-                    print(f"Gemini API error: {str(gemini_error)}")  # Log the error for debugging
-                    response_text = f"I received your message: '{chat_request.message}'. For task management, please be more specific like 'add task: buy groceries' or 'show my tasks'."
+                # Handle quota exceeded errors specifically
+                error_str = str(e).lower()
+                if "quota" in error_str and "exceeded" in error_str:
+                    print(f"Quota exceeded error: {e}")
+                    return ChatResponse(
+                        conversation_id=chat_request.conversation_id or 0,
+                        message=ChatMessage(role=MessageRole.ASSISTANT, content="We've reached the API quota limit. Please check your API key and billing settings, or contact the administrator to update the API key."),
+                        success=False,
+                        error_message="Quota exceeded - please update your API key or check billing"
+                    )
 
-            # Save user message
-            self._save_message(
-                conversation_id,
-                chat_request.user_id,
-                MessageRole.USER,
-                chat_request.message,
-                json.dumps(tool_calls_executed) if tool_calls_executed else None
-            )
+                print(f"Chat error: {e}")
+                # Check if it's a model not found error and suggest alternatives
+                error_msg = str(e)
+                if "models/gemini-" in error_msg or "404" in error_msg:
+                    suggestion = "Model not found. Please check your API key and available models (using gemini-2.5-flash)."
+                    error_msg = f"{error_msg} ({suggestion})"
+                elif "quota" in error_msg.lower():
+                    suggestion = "API quota exceeded. Please check your billing settings or update your API key."
+                    error_msg = f"{error_msg} ({suggestion})"
 
-            # Save assistant message
-            self._save_message(
-                conversation_id,
-                chat_request.user_id,
-                MessageRole.ASSISTANT,
-                response_text
-            )
-
-            # Create response
-            chat_message = ChatMessage(
-                role=MessageRole.ASSISTANT,
-                content=response_text
-            )
-
-            return ChatResponse(
-                conversation_id=conversation_id,
-                message=chat_message,
-                tool_calls_executed=tool_calls_executed,
-                success=True,
-                # Add metadata for transparency
-                metadata={
-                    "processed_at": datetime.now().isoformat(),
-                    "has_tool_calls": len(tool_calls_executed) > 0
-                }
-            )
-
-        except ValueError as ve:
-            # Handle validation errors (e.g., invalid conversation ID)
-            error_msg = "I'm sorry, but there was an issue with your request. Please make sure you're authorized to access this conversation."
-            return ChatResponse(
-                conversation_id=0,
-                message=ChatMessage(
-                    role=MessageRole.ASSISTANT,
-                    content=error_msg
-                ),
-                success=False,
-                error_message=str(ve),
-                metadata={"error_type": "validation_error"}
-            )
-        except Exception as e:
-            # Handle any other errors with a friendly message
-            error_msg = "I'm sorry, but I encountered an unexpected issue while processing your request. Please try again in a moment."
-            print(f"Agent service error: {str(e)}")  # Log the error for debugging
-            return ChatResponse(
-                conversation_id=0,
-                message=ChatMessage(
-                    role=MessageRole.ASSISTANT,
-                    content=error_msg
-                ),
-                success=False,
-                error_message=str(e),
-                metadata={"error_type": "unexpected_error"}
-            )
+                return ChatResponse(
+                    conversation_id=chat_request.conversation_id or 0,
+                    message=ChatMessage(role=MessageRole.ASSISTANT, content=f"I'm a bit overwhelmed right now. Please try again in 30 seconds. (Error: {error_msg})"),
+                    success=False,
+                    error_message=str(e)
+                )

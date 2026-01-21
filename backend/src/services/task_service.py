@@ -16,7 +16,7 @@ class TaskService:
 
     def get_task_by_id(self, task_id: int, user_id: str) -> Optional[Task]:
         task = self.session.get(Task, task_id)
-        if task and task.user_id == user_id:
+        if task and str(task.user_id) == str(user_id):
             return task
         return None
 
@@ -29,7 +29,7 @@ class TaskService:
         sort_by: Optional[str] = None,
         sort_order: Optional[str] = None,
     ) -> List[Task]:
-        query = select(Task).where(Task.user_id == user_id)
+        query = select(Task).where(Task.user_id == str(user_id))
 
         if status:
             query = query.where(Task.status == status)
@@ -51,7 +51,7 @@ class TaskService:
 
     def update_task(self, task_id: int, task_update: TaskUpdate, user_id: str) -> Optional[Task]:
         task = self.session.get(Task, task_id)
-        if task and task.user_id == user_id:
+        if task and str(task.user_id) == str(user_id):
             task_data = task_update.model_dump(exclude_unset=True)
             for key, value in task_data.items():
                 setattr(task, key, value)
@@ -63,7 +63,7 @@ class TaskService:
 
     def delete_task(self, task_id: int, user_id: str) -> bool:
         task = self.session.get(Task, task_id)
-        if task and task.user_id == user_id:
+        if task and str(task.user_id) == str(user_id):
             self.session.delete(task)
             self.session.commit()
             return True

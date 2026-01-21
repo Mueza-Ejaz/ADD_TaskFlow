@@ -39,8 +39,8 @@ class ListTasksParams(BaseModel):
 class UpdateTaskParams(BaseModel):
     """Parameters for updating a task"""
     user_id: str = Field(..., description="ID of the user who owns the task")
-    task_id: int = Field(..., description="ID of the task to update")
-    title: Optional[str] = Field(None, description="New title for the task")
+    task_id: Optional[int] = Field(None, description="ID of the task to update (optional if title is provided to find the task)")
+    title: Optional[str] = Field(None, description="New title for the task, or if task_id is not provided, the title to find the task by")
     description: Optional[str] = Field(None, description="New description for the task")
     status: Optional[str] = Field(None, description="New status for the task")
 
@@ -54,7 +54,8 @@ class CompleteTaskParams(BaseModel):
 class DeleteTaskParams(BaseModel):
     """Parameters for deleting a task"""
     user_id: str = Field(..., description="ID of the user who owns the task")
-    task_id: int = Field(..., description="ID of the task to delete")
+    task_id: Optional[int] = Field(None, description="ID of the task to delete")
+    title: Optional[str] = Field(None, description="Title of the task to delete (alternative to task_id)")
 
 
 @user_isolation_check
@@ -104,7 +105,7 @@ def list_tasks(params: ListTasksParams, db_session: Session) -> dict:
         user_id_int = params.user_id  # Store the actual string user_id from the API
 
         # Query tasks for the user
-        statement = select(Task).where(Task.user_id == user_id_int)
+        statement = select(Task).where(Task.user_id == str(user_id_int))
 
         if params.status:
             statement = statement.where(Task.status == params.status)
@@ -159,16 +160,53 @@ def update_task(params: UpdateTaskParams, db_session: Session) -> dict:
         # Use the user_id as provided (keeping it as string to match API)
         user_id_int = params.user_id  # Store the actual string user_id from the API
 
-        # First, verify the task belongs to the user
-        task = db_session.get(Task, params.task_id)
+        task = None
+
+        # Find the task by ID if provided
+        if params.task_id is not None:
+            task = db_session.get(Task, params.task_id)
+        # Otherwise find the task by title (for updating when only title is known)
+        # Support both: title + status to update status, or just title to update other fields
+        elif params.title is not None:
+            # If we're updating using title, look for task by title
+            # This is to handle requests like "update task 'cleaning house' to in progress" or "update task 'old title' with new title"
+            statement = select(Task).where(
+                Task.user_id == str(user_id_int),
+                Task.title.ilike(f"%{params.title}%")  # Case-insensitive partial match
+            )
+            tasks = db_session.exec(statement).all()
+
+            if not tasks:
+                return {
+                    "success": False,
+                    "error": "Task not found",
+                    "message": f"No task found with title containing '{params.title}'."
+                }
+            elif len(tasks) > 1:
+                # If multiple tasks match, return an error asking for more specificity
+                task_titles = [f"'{t.title}' (ID: {t.id})" for t in tasks[:5]]  # Limit to first 5
+                return {
+                    "success": False,
+                    "error": "Multiple tasks found",
+                    "message": f"Multiple tasks match '{params.title}': {', '.join(task_titles)}. Please use the task ID or be more specific."
+                }
+            else:
+                task = tasks[0]
+        else:
+            return {
+                "success": False,
+                "error": "Missing parameters",
+                "message": "Either task_id or title must be provided to update a task."
+            }
+
         if not task:
             return {
                 "success": False,
                 "error": "Task not found",
-                "message": f"Task with ID {params.task_id} not found."
+                "message": f"Task not found."
             }
 
-        if task.user_id != user_id_int:
+        if str(task.user_id) != str(user_id_int):
             return {
                 "success": False,
                 "error": "Permission denied",
@@ -176,12 +214,31 @@ def update_task(params: UpdateTaskParams, db_session: Session) -> dict:
             }
 
         # Update the task fields that were provided
-        if params.title is not None:
-            task.title = params.title
+        # Determine if title was used for lookup vs for update
+        title_used_for_lookup = (params.task_id is None and params.title is not None)
+
+        # Update fields other than title
         if params.description is not None:
             task.description = params.description
         if params.status is not None:
-            task.status = params.status
+            # Normalize status values to match frontend expectations
+            normalized_status = params.status.lower().strip()
+            if normalized_status == "in progress":
+                normalized_status = "in-progress"
+            elif normalized_status == "in_progress":
+                normalized_status = "in-progress"
+            elif normalized_status == "to do":
+                normalized_status = "pending"
+            elif normalized_status == "todo":
+                normalized_status = "pending"
+            elif normalized_status == "done":
+                normalized_status = "completed"
+
+            task.status = normalized_status
+
+        # Only update title if not used for lookup (or if we're updating by ID)
+        if params.title is not None and not title_used_for_lookup:
+            task.title = params.title
 
         db_session.add(task)
         db_session.commit()
@@ -218,7 +275,7 @@ def complete_task(params: CompleteTaskParams, db_session: Session) -> dict:
                 "message": f"Task with ID {params.task_id} not found."
             }
 
-        if task.user_id != user_id_int:
+        if str(task.user_id) != str(user_id_int):
             return {
                 "success": False,
                 "error": "Permission denied",
@@ -247,22 +304,56 @@ def complete_task(params: CompleteTaskParams, db_session: Session) -> dict:
 @user_isolation_check
 def delete_task(params: DeleteTaskParams, db_session: Session) -> dict:
     """
-    Delete a task
+    Delete a task by ID or title
     """
     try:
         # Use the user_id as provided (keeping it as string to match API)
         user_id_int = params.user_id  # Store the actual string user_id from the API
 
-        # First, verify the task belongs to the user
-        task = db_session.get(Task, params.task_id)
+        task = None
+
+        # Find the task by ID if provided
+        if params.task_id is not None:
+            task = db_session.get(Task, params.task_id)
+        # Otherwise find the task by title
+        elif params.title is not None:
+            statement = select(Task).where(
+                Task.user_id == str(user_id_int),
+                Task.title.ilike(f"%{params.title}%")  # Case-insensitive partial match
+            )
+            tasks = db_session.exec(statement).all()
+
+            if not tasks:
+                return {
+                    "success": False,
+                    "error": "Task not found",
+                    "message": f"No task found with title containing '{params.title}'."
+                }
+            elif len(tasks) > 1:
+                # If multiple tasks match, list them for the user to be more specific
+                task_titles = [f"'{t.title}' (ID: {t.id})" for t in tasks[:5]]  # Limit to first 5
+                return {
+                    "success": False,
+                    "error": "Multiple tasks found",
+                    "message": f"Multiple tasks match '{params.title}': {', '.join(task_titles)}. Please be more specific or use the task ID."
+                }
+            else:
+                task = tasks[0]
+        else:
+            return {
+                "success": False,
+                "error": "Missing parameters",
+                "message": "Either task_id or title must be provided to delete a task."
+            }
+
         if not task:
             return {
                 "success": False,
                 "error": "Task not found",
-                "message": f"Task with ID {params.task_id} not found."
+                "message": f"Task not found."
             }
 
-        if task.user_id != user_id_int:
+        if str(task.user_id) != str(user_id_int):
             return {
                 "success": False,
                 "error": "Permission denied",
@@ -270,13 +361,14 @@ def delete_task(params: DeleteTaskParams, db_session: Session) -> dict:
             }
 
         # Delete the task
+        task_id = task.id  # Store ID before deletion
         db_session.delete(task)
         db_session.commit()
 
         return {
             "success": True,
-            "task_id": params.task_id,
-            "message": f"Task has been deleted successfully!"
+            "task_id": task_id,
+            "message": f"Task '{task.title}' has been deleted successfully!"
         }
     except Exception as e:
         return {
