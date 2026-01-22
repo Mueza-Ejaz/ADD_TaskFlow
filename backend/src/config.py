@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 import os
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = f"sqlite:///{os.path.join(os.path.dirname(os.path.dirname(__file__)), 'taskflow.db')}"
+    DATABASE_URL: str = os.getenv("DATABASE_URL", f"sqlite:///{os.path.join(os.path.dirname(os.path.dirname(__file__)), 'taskflow.db')}")  # Default to SQLite for local dev, Neon PostgreSQL in production
     # Add TEST_DATABASE_URL for pytest
     TEST_DATABASE_URL: str = "sqlite:///:memory:" # In-memory SQLite for testing
     JWT_SECRET_KEY: str = "your-very-secret-key-change-in-production-32chars" # Renamed from JWT_SECRET
