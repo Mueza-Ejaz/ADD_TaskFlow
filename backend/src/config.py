@@ -13,7 +13,8 @@ ENV_FILE = BACKEND_DIR / ".env"
 load_dotenv(ENV_FILE, encoding="utf-8-sig")
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "sqlite:///taskflow.db"  # Default, overridden by .env
+    # Production-ready: Uses Neon PostgreSQL when DATABASE_URL is set in environment, SQLite fallback for local dev
+    DATABASE_URL: str = os.getenv("DATABASE_URL", f"sqlite:///{os.path.join(os.path.dirname(os.path.dirname(__file__)), 'taskflow.db')}")
     # Add TEST_DATABASE_URL for pytest
     TEST_DATABASE_URL: str = "sqlite:///:memory:" # In-memory SQLite for testing
     JWT_SECRET_KEY: str = "your-very-secret-key-change-in-production-32chars" # Renamed from JWT_SECRET
