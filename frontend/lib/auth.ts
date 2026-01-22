@@ -80,7 +80,5 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/login"
   },
-  secret: process.env.NEXTAUTH_SECRET,
-  // Add baseUrl to ensure proper URL handling
-  baseUrl: process.env.NEXTAUTH_URL || "http://localhost:3000"
+  secret: process.env.NEXTAUTH_SECRET
 };

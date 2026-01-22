@@ -39,7 +39,7 @@ class ChatAPIClient {
 
       // If token is not provided or is null/undefined, try localStorage
       if (!normalizedToken && typeof window !== 'undefined') {
-        normalizedToken = localStorage.getItem('auth_token');
+        normalizedToken = localStorage.getItem('auth_token') || undefined;
       }
 
       if (!normalizedToken) {
@@ -81,7 +81,7 @@ class ChatAPIClient {
 
       // If token is not provided or is null/undefined, try localStorage
       if (!normalizedToken && typeof window !== 'undefined') {
-        normalizedToken = localStorage.getItem('auth_token');
+        normalizedToken = localStorage.getItem('auth_token') || undefined;
       }
 
       if (!normalizedToken) {
@@ -137,7 +137,7 @@ class ChatAPIClient {
 
       // If token is not provided or is null/undefined, try localStorage
       if (!normalizedToken && typeof window !== 'undefined') {
-        normalizedToken = localStorage.getItem('auth_token');
+        normalizedToken = localStorage.getItem('auth_token') || undefined;
       }
 
       if (!normalizedToken) {
@@ -191,7 +191,7 @@ class ChatAPIClient {
 
       // If token is not provided or is null/undefined, try localStorage
       if (!normalizedToken && typeof window !== 'undefined') {
-        normalizedToken = localStorage.getItem('auth_token');
+        normalizedToken = localStorage.getItem('auth_token') || undefined;
       }
 
       if (!normalizedToken) {
@@ -213,6 +213,24 @@ class ChatAPIClient {
         }
         throw new Error('Authentication token has expired or is invalid. Please log in again.');
       }
+
+      // Handle 404 errors (conversation not found) - allow local removal to proceed
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        // The conversation doesn't exist on the server, but we can still remove it locally
+        console.warn('Conversation not found on server (404), proceeding with local removal:', error.message);
+        return; // Don't throw error, allow local cleanup to proceed
+      }
+
+      // Handle network errors (timeout, connection refused, etc.)
+      if (axios.isAxiosError(error)) {
+        if (error.code === 'ECONNABORTED' || error.code === 'ENOTFOUND' || !error.response) {
+          // For network errors, log the error but don't throw if it's a temporary issue
+          // We can still remove the conversation locally even if the backend deletion fails temporarily
+          console.warn('Network error deleting conversation (will proceed with local removal):', error.message);
+          return; // Don't throw error for network issues, allow local cleanup to proceed
+        }
+      }
+
       console.error('Error deleting conversation:', error);
       throw error;
     }
